@@ -14,7 +14,6 @@
             --green: #4caf50;
             --gold: #ffb300;
             --gray: #777;
-            --tag-bg: rgba(76, 175, 80, 0.2);
         }
         * { box-sizing: border-box; }
         body {
@@ -29,7 +28,6 @@
             overflow: hidden;
         }
 
-        /* Приветствие (Пофикшены отступы) */
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #000; display: none;
@@ -39,69 +37,40 @@
         #splash h2 { font-size: clamp(20px, 6vw, 28px); margin-bottom: 15px; text-transform: uppercase; color: var(--accent); }
         #splash p.main-text { font-size: clamp(14px, 4vw, 18px); margin-bottom: 20px; line-height: 1.4; max-width: 100%;}
         #splash p.pizdyulina { font-size: clamp(12px, 3.5vw, 15px); color: var(--gold); font-style: italic; margin-bottom: 40px; max-width: 100%; word-wrap: break-word;}
-        #splash button {
-            background-color: var(--accent); color: white; border: none;
-            padding: 15px 40px; font-size: 16px; font-weight: bold; border-radius: 8px;
-        }
+        #splash button { background-color: var(--accent); color: white; border: none; padding: 15px 40px; font-size: 16px; font-weight: bold; border-radius: 8px; }
 
-        /* Шапка */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         h1 { font-size: 20px; text-transform: uppercase; margin: 0; letter-spacing: 1px;}
         #streak-display { font-size: 14px; font-weight: bold; color: var(--gold); background: #2a2a2a; padding: 5px 10px; border-radius: 20px; }
         
-        /* Прогресс-бар */
         .progress-container { width: 100%; height: 6px; background: var(--card); border-radius: 3px; margin-bottom: 15px; overflow: hidden; }
         #progress-bar { height: 100%; width: 0%; background: var(--green); transition: width 0.3s ease; }
 
-        /* Вкладки */
         .tabs { display: flex; gap: 4px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 2px;}
-        .tabs button {
-            flex: 1; background-color: var(--card); color: var(--text);
-            border: 1px solid #333; padding: 8px 4px; border-radius: 8px;
-            font-size: 12px; cursor: pointer; white-space: nowrap;
-        }
+        .tabs button { flex: 1; background-color: var(--card); color: var(--text); border: 1px solid #333; padding: 8px 4px; border-radius: 8px; font-size: 12px; cursor: pointer; white-space: nowrap; }
         .tabs button.active { background-color: var(--accent); border-color: var(--accent); font-weight: bold; }
 
-        /* Область ввода и теги */
         .input-area { display: flex; gap: 10px; margin-bottom: 10px; }
-        input[type="text"] {
-            flex-grow: 1; padding: 12px; background-color: var(--card);
-            border: 1px solid #333; border-radius: 8px; color: white; font-size: 16px; outline: none;
-        }
+        input[type="text"] { flex-grow: 1; padding: 12px; background-color: var(--card); border: 1px solid #333; border-radius: 8px; color: white; font-size: 16px; outline: none; }
         button.add-btn { padding: 12px 15px; background-color: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; }
         
-        /* Теги */
         .tags-container { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .tag-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 15px; font-size: 12px; }
         .tag-btn:disabled { opacity: 0.3; }
         
-        /* Выбранный тег (плашка внутри инпута) */
-        #activeTagBadge {
-            display: none; align-items: center; gap: 5px;
-            background-color: var(--tag-bg); border: 1px solid var(--green);
-            color: var(--green); padding: 2px 8px; border-radius: 12px; font-size: 12px;
-            margin-bottom: 10px; width: fit-content;
-        }
+        #activeTagBadge { display: none; align-items: center; gap: 5px; background-color: rgba(76, 175, 80, 0.2); border: 1px solid var(--green); color: var(--green); padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-bottom: 10px; width: fit-content; }
         #activeTagBadge span { cursor: pointer; font-weight: bold; }
 
-        /* Списки задач */
         #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 20px;}
         ul { list-style: none; padding: 0; margin: 0; }
         
-        li {
-            background-color: var(--card); padding: 12px; margin-bottom: 10px;
-            border-radius: 8px; border-left: 4px solid var(--accent);
-            display: flex; flex-direction: column; gap: 8px; position: relative;
-        }
+        li { background-color: var(--card); padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid var(--accent); display: flex; flex-direction: column; gap: 8px; position: relative; }
         li.done { border-left-color: var(--green); opacity: 0.5; }
         li.failed { border-left-color: var(--gray); }
         li.main-goal { border: 2px solid var(--gold); border-left: 6px solid var(--gold); box-shadow: 0 0 10px rgba(255, 179, 0, 0.2); }
         
         .task-row { display: flex; align-items: center; gap: 10px; }
-        .checkbox {
-            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #555;
-            display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0;
-        }
+        .checkbox { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #555; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; }
         li.done .checkbox { background-color: var(--green); border-color: var(--green); }
         .checkbox::after { content: '✓'; color: white; display: none; font-size: 14px; }
         li.done .checkbox::after { display: block; }
@@ -114,19 +83,12 @@
         .action-btn.main-btn { color: var(--gold); }
         .action-btn.del-btn { color: var(--gray); }
 
-        /* Блок Большой цели (сверху) */
-        .big-goal-card {
-            background: linear-gradient(145deg, #1e1e1e, #121212);
-            border: 2px solid var(--gold);
-            border-radius: 12px; padding: 15px; margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.1);
-        }
+        .big-goal-card { background: linear-gradient(145deg, #1e1e1e, #121212); border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(255, 179, 0, 0.1); }
         .big-goal-title { font-size: 16px; font-weight: bold; color: var(--gold); margin-bottom: 5px; display: flex; justify-content: space-between;}
         .big-goal-deadline { font-size: 12px; color: #aaa; }
         .big-goal-step { background: #2a2a2a; padding: 10px; border-radius: 8px; margin-top: 10px; display: flex; align-items: center; gap: 10px;}
         .big-goal-msg { font-size: 12px; color: var(--accent); font-style: italic; margin-top: 5px; }
 
-        /* Календарь */
         #calendarView { display: none; flex-direction: column; }
         .month-block { margin-bottom: 20px; }
         .month-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 10px; color: var(--accent); text-transform: capitalize; }
@@ -138,22 +100,18 @@
         .dots-container { position: absolute; bottom: 2px; width: 100%; display: flex; justify-content: center; gap: 2px;}
         .dot { width: 4px; height: 4px; background-color: var(--gold); border-radius: 50%; }
 
-        /* Страница дня */
         #dayView { display: none; flex-direction: column; height: 100%; }
         #dayViewHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         #dayViewTitle { font-size: 18px; font-weight: bold; color: var(--accent); }
         #backBtn { background: var(--card); color: white; border: none; padding: 8px 15px; border-radius: 6px; }
 
-        /* Вкладка Цели */
         #goalsView { display: none; flex-direction: column; }
         .goal-list-item { background: var(--card); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--gold); display: flex; justify-content: space-between; align-items: center;}
         
-        /* Форма создания цели */
         #createGoalForm { display: none; flex-direction: column; gap: 10px; background: var(--card); padding: 15px; border-radius: 8px; margin-bottom: 15px;}
         #createGoalForm input, #createGoalForm button { padding: 10px; border-radius: 6px; border: none; font-size: 14px;}
         #createGoalForm input { background: #333; color: white; }
         #createGoalForm button { background: var(--gold); color: black; font-weight: bold; }
-
     </style>
 </head>
 <body>
@@ -183,10 +141,7 @@
     </div>
 
     <div id="content">
-        <!-- Стандартный вид -->
         <div id="standardView" style="display: flex; flex-direction: column; height: 100%;">
-            
-            <!-- Блок Большой Цели -->
             <div id="bigGoalContainer"></div>
 
             <div id="inputBlock">
@@ -210,7 +165,6 @@
             <ul id="taskList"></ul>
         </div>
 
-        <!-- Вид Целей -->
         <div id="goalsView">
             <button class="add-btn" style="margin-bottom: 15px; width: 100%;" onclick="toggleGoalForm()">+ НОВАЯ ЦЕЛЬ</button>
             
@@ -223,12 +177,10 @@
             <ul id="goalsList"></ul>
         </div>
 
-        <!-- Вид Календаря -->
         <div id="calendarView">
             <div id="calendarMonths"></div>
         </div>
 
-        <!-- Страница конкретного дня -->
         <div id="dayView">
             <div id="dayViewHeader">
                 <button id="backBtn" onclick="closeDayView()">← Назад</button>
@@ -243,7 +195,6 @@
     </div>
 
     <script>
-        // --- ИНИЦИАЛИЗАЦИЯ ---
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.expand(); tg.setHeaderColor('#121212'); }
 
@@ -263,7 +214,6 @@
             "Слабые ищут оправдания, сильные ищут пути."
         ];
 
-        // --- ДАТЫ ---
         function getTodayStr() {
             const d = new Date();
             return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -277,7 +227,6 @@
             return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
         }
 
-        // --- ЛОГИКА ДНЯ ---
         function init() {
             processDayChange();
             checkSplash();
@@ -297,19 +246,14 @@
                     return true;
                 });
                 
-                // Очистка старых проебав (7 дней)
                 const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
                 const weekAgoStr = weekAgo.getFullYear() + '-' + String(weekAgo.getMonth()+1).padStart(2,'0') + '-' + String(weekAgo.getDate()).padStart(2,'0');
                 tasks = tasks.filter(t => t.date >= weekAgoStr);
 
-                // Стрик
-                if (hasFailed) {
-                    streak = 0;
-                } else if (lastDate !== null) {
-                    streak++;
-                } else {
-                    streak = 1;
-                }
+                if (hasFailed) { streak = 0; }
+                else if (lastDate !== null) { streak++; }
+                else { streak = 1; }
+
                 localStorage.setItem('my_streak_v3', streak);
                 localStorage.setItem('last_process_date', today);
                 saveData();
@@ -320,7 +264,6 @@
             document.getElementById('streak-display').innerText = `🔥 ${streak} дней`;
         }
 
-        // --- ПРИВЕТСТВИЕ ---
         function checkSplash() {
             if (localStorage.getItem('last_visit') !== getTodayStr()) {
                 document.getElementById('splashPhrase').innerText = `"${pizdyuliny[Math.floor(Math.random() * pizdyuliny.length)]}"`;
@@ -332,7 +275,6 @@
             document.getElementById('splash').style.display = 'none';
         }
 
-        // --- ВКЛАДКИ ---
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
@@ -358,7 +300,6 @@
             removeTag(); 
         }
 
-        // --- ТЕГИ ---
         function setTag(tagText) {
             currentTag = tagText;
             document.getElementById('activeTagText').innerText = tagText;
@@ -371,7 +312,6 @@
             document.getElementById('tagsContainer').style.display = 'flex';
         }
 
-        // --- ДОБАВЛЕНИЕ ЗАДАЧ ---
         function addTask() {
             const input = document.getElementById('taskInput');
             let text = input.value.trim();
@@ -390,7 +330,6 @@
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
-        // --- ДЕЙСТВИЯ С ЗАДАЧАМИ ---
         function toggleTask(id) {
             const task = tasks.find(t => t.id === id);
             if (task) { task.done = !task.done; saveData(); renderTasks(); if(tg) tg.HapticFeedback.notificationOccurred('success'); }
@@ -398,10 +337,7 @@
         function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); saveData(); renderTasks(); }
         function setMainGoal(id) {
             const task = tasks.find(t => t.id === id);
-            if (task) {
-                tasks.forEach(t => { if(t.date === task.date) t.isMainGoal = false; });
-                task.isMainGoal = true; saveData(); renderTasks();
-            }
+            if (task) { tasks.forEach(t => { if(t.date === task.date) t.isMainGoal = false; }); task.isMainGoal = true; saveData(); renderTasks(); }
         }
         function rescheduleTask(id) {
             const select = document.getElementById(`resched-${id}`);
@@ -409,7 +345,6 @@
             if (task && select.value) { task.date = select.value; task.status = 'active'; task.done = false; saveData(); renderTasks(); }
         }
 
-        // --- ОТРИСОВКА ЗАДАЧ ---
         function renderTasks() {
             const list = document.getElementById('taskList');
             const today = getTodayStr();
@@ -423,7 +358,6 @@
             });
             filtered.sort((a, b) => (b.isMainGoal === true ? 1 : 0) - (a.isMainGoal === true ? 1 : 0));
             
-            // Прогресс
             if (currentTab === 'today' && filtered.length > 0) {
                 const doneCount = filtered.filter(t => t.done).length;
                 const percent = Math.round((doneCount / filtered.length) * 100);
@@ -475,7 +409,6 @@
             });
         }
 
-        // --- БОЛЬШИЕ ЦЕЛИ ---
         function toggleGoalForm() {
             const form = document.getElementById('createGoalForm');
             form.style.display = form.style.display === 'flex' ? 'none' : 'flex';
@@ -526,19 +459,15 @@
             renderGoals();
         }
 
-        // Отрисовка большой цели на главном экране
         function renderBigGoalToday() {
             const container = document.getElementById('bigGoalContainer');
             container.innerHTML = '';
             
-            if (currentTab !== 'today') return; // Показываем только на "Сегодня"
-
-            // Берем первую цель (или можно циклом выводить все)
+            if (currentTab !== 'today') return;
             if (goals.length === 0) return;
-            const goal = goals[0]; // Для простоты берем первую
+
+            const goal = goals[0]; // Берем первую цель
             const daysLeft = daysBetween(getTodayStr(), goal.deadline);
-            
-            // Ищем невыполненный шаг
             let currentStep = goal.steps.find(s => !s.done);
 
             let msg = "";
@@ -559,7 +488,7 @@
             if (currentStep) {
                 html += `
                     <div class="big-goal-step">
-                        <div class="checkbox ${currentStep.done ? 'done' : ''}" onclick="toggleGoalStep(${goal.id}, ${currentStep.id})"></div>
+                        <div class="checkbox" onclick="toggleGoalStep(${goal.id}, ${currentStep.id})"></div>
                         <span style="flex-grow:1; font-size:14px;">Шаг: ${currentStep.text}</span>
                     </div>
                 `;
@@ -571,17 +500,14 @@
             container.innerHTML = html;
         }
 
-        // Заглушка для открытия цели (пока просто prompt для добавления шага)
         function openGoal(id) {
             const goal = goals.find(g => g.id === id);
             if (!goal) return;
-            
-            const action = prompt("Введи НОВЫЙ ШАГ для цели '" + goal.name + "' (или оставь пустым, чтобы просто посмотреть):");
+            const action = prompt("Введи НОВЫЙ ШАГ для цели '" + goal.name + "':");
             if (action && action.trim() !== '') {
                 goal.steps.push({ id: Date.now(), text: action.trim(), done: false });
                 saveData();
                 renderBigGoalToday();
-                alert("Шаг добавлен в цель!");
             }
         }
 
@@ -597,7 +523,6 @@
             }
         }
 
-        // --- КАЛЕНДАРЬ ---
         function renderCalendar() {
             const container = document.getElementById('calendarMonths');
             container.innerHTML = '';
@@ -655,4 +580,33 @@
                     <div class="task-row">
                         <div class="checkbox" onclick="toggleTaskFromDay(${task.id})"></div>
                         <span class="task-text">${task.text}</span>
-                        <button class="action-btn del-btn" onclick="deleteTaskFromDay($
+                        <button class="action-btn del-btn" onclick="deleteTaskFromDay(${task.id})">✕</button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addTaskDayView() {
+            const input = document.getElementById('dayInput');
+            const text = input.value.trim();
+            if (!text) return;
+            tasks.push({ id: Date.now(), text: text, date: activeDayDate, done: false, status: 'active', isMainGoal: false });
+            input.value = '';
+            saveData();
+            renderDayViewTasks();
+            if (tg) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function toggleTaskFromDay(id) { toggleTask(id); renderDayViewTasks(); }
+        function deleteTaskFromDay(id) { deleteTask(id); renderDayViewTasks(); }
+
+        function saveData() {
+            localStorage.setItem('my_tasks_v3', JSON.stringify(tasks));
+            localStorage.setItem('my_goals_v3', JSON.stringify(goals));
+        }
+
+        init();
+    </script>
+</body>
+</html>
