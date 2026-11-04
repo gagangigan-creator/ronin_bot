@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Трекер Ронина</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            border-bottom: 2px solid #e53935;
+            padding-bottom: 10px;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex-grow: 1;
+            padding: 12px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        button.add-btn {
+            padding: 12px 20px;
+            background-color: #e53935;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            background-color: #1e1e1e;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #e53935;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        li.done {
+            border-left-color: #4caf50;
+            opacity: 0.6;
+        }
+        .task-text {
+            flex-grow: 1;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #777;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Трекер Ронина</h1>
+    
+    <div class="input-area">
+        <input type="text" id="taskInput" placeholder="Что сделаешь сегодня?">
+        <button class="add-btn" id="addBtn">В БОЙ</button>
+    </div>
+    
+    <ul id="taskList"></ul>
+
+    <script>
+        // Инициализация Telegram
+        let tg = window.Telegram?.WebApp;
+        if (tg) tg.expand();
+
+        // Загружаем задачи
+        let tasks = JSON.parse(localStorage.getItem('ronin_tasks')) || [];
+
+        const listElement = document.getElementById('taskList');
+        const inputElement = document.getElementById('taskInput');
+        const addButton = document.getElementById('addBtn');
+
+        function renderTasks() {
+            listElement.innerHTML = '';
+            tasks.forEach(function(task, index) {
+                let li = document.createElement('li');
+                if (task.done) {
+                    li.className = 'done';
+                }
+                
+                li.innerHTML = '<span class="task-text" onclick="toggleTask(' + index + ')">' + 
+                               (task.done ? '✅ ' : '⭕ ') + task.text + 
+                               '</span>' +
+                               '<button class="delete-btn" onclick="deleteTask(' + index + ')">✕</button>';
+                listElement.appendChild(li);
+            });
+        }
+
+        function addTask() {
+            let text = inputElement.value.trim();
+            if (text !== '') {
+                tasks.push({ text: text, done: false });
+                inputElement.value = '';
+                saveAndRender();
+            }
+        }
+
+        function toggleTask(index) {
+            tasks[index].done = !tasks[index].done;
+            saveAndRender();
+        }
+
+        function deleteTask(index) {
+            tasks.splice(index, 1);
+            saveAndRender();
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('ronin_tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        // Навешиваем события на кнопку (вместо onclick в HTML)
+        addButton.addEventListener('click', addTask);
+        
+        // Навешиваем событие на Enter
+        inputElement.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Первый запуск
+        renderTasks();
+    </script>
+</body>
+</html>
