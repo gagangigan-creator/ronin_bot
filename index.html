@@ -14,6 +14,7 @@
             --green: #4caf50;
             --gold: #ffb300;
             --gray: #777;
+            --red-pulse: rgba(229, 57, 53, 0.8);
         }
         * { box-sizing: border-box; }
         body {
@@ -28,6 +29,7 @@
             overflow: hidden;
         }
 
+        /* Экран приветствия */
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #000; display: none;
@@ -35,32 +37,37 @@
             text-align: center; padding: 30px; z-index: 1000;
         }
         #splash h2 { font-size: clamp(20px, 6vw, 28px); margin-bottom: 15px; text-transform: uppercase; color: var(--accent); }
-        #splash p.main-text { font-size: clamp(14px, 4vw, 18px); margin-bottom: 20px; line-height: 1.4; max-width: 100%;}
-        #splash p.pizdyulina { font-size: clamp(12px, 3.5vw, 15px); color: var(--gold); font-style: italic; margin-bottom: 40px; max-width: 100%; word-wrap: break-word;}
+        #splash p.main-text { font-size: clamp(14px, 4vw, 18px); margin-bottom: 20px; line-height: 1.4; }
+        #splash p.pizdyulina { font-size: clamp(12px, 3.5vw, 15px); color: var(--gold); font-style: italic; margin-bottom: 40px; }
         #splash button { background-color: var(--accent); color: white; border: none; padding: 15px 40px; font-size: 16px; font-weight: bold; border-radius: 8px; }
 
+        /* Шапка */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         h1 { font-size: 20px; text-transform: uppercase; margin: 0; letter-spacing: 1px;}
         #streak-display { font-size: 14px; font-weight: bold; color: var(--gold); background: #2a2a2a; padding: 5px 10px; border-radius: 20px; }
         
+        /* Прогресс-бар */
         .progress-container { width: 100%; height: 6px; background: var(--card); border-radius: 3px; margin-bottom: 15px; overflow: hidden; }
         #progress-bar { height: 100%; width: 0%; background: var(--green); transition: width 0.3s ease; }
 
+        /* Вкладки */
         .tabs { display: flex; gap: 4px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 2px;}
         .tabs button { flex: 1; background-color: var(--card); color: var(--text); border: 1px solid #333; padding: 8px 4px; border-radius: 8px; font-size: 12px; cursor: pointer; white-space: nowrap; }
         .tabs button.active { background-color: var(--accent); border-color: var(--accent); font-weight: bold; }
 
+        /* Область ввода */
         .input-area { display: flex; gap: 10px; margin-bottom: 10px; }
-        input[type="text"] { flex-grow: 1; padding: 12px; background-color: var(--card); border: 1px solid #333; border-radius: 8px; color: white; font-size: 16px; outline: none; }
+        input[type="text"], input[type="date"] { flex-grow: 1; padding: 12px; background-color: var(--card); border: 1px solid #333; border-radius: 8px; color: white; font-size: 16px; outline: none; }
         button.add-btn { padding: 12px 15px; background-color: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; }
         
+        /* Теги */
         .tags-container { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .tag-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 15px; font-size: 12px; }
         .tag-btn:disabled { opacity: 0.3; }
-        
         #activeTagBadge { display: none; align-items: center; gap: 5px; background-color: rgba(76, 175, 80, 0.2); border: 1px solid var(--green); color: var(--green); padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-bottom: 10px; width: fit-content; }
         #activeTagBadge span { cursor: pointer; font-weight: bold; }
 
+        /* Списки */
         #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 20px;}
         ul { list-style: none; padding: 0; margin: 0; }
         
@@ -83,12 +90,17 @@
         .action-btn.main-btn { color: var(--gold); }
         .action-btn.del-btn { color: var(--gray); }
 
+        /* Карточка Большой Цели */
         .big-goal-card { background: linear-gradient(145deg, #1e1e1e, #121212); border: 2px solid var(--gold); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(255, 179, 0, 0.1); }
+        .big-goal-card.panic { animation: pulseRed 1.5s infinite; border-color: var(--accent); }
+        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 var(--red-pulse); } 70% { box-shadow: 0 0 0 10px rgba(229, 57, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); } }
+        
         .big-goal-title { font-size: 16px; font-weight: bold; color: var(--gold); margin-bottom: 5px; display: flex; justify-content: space-between;}
         .big-goal-deadline { font-size: 12px; color: #aaa; }
         .big-goal-step { background: #2a2a2a; padding: 10px; border-radius: 8px; margin-top: 10px; display: flex; align-items: center; gap: 10px;}
         .big-goal-msg { font-size: 12px; color: var(--accent); font-style: italic; margin-top: 5px; }
 
+        /* Календарь */
         #calendarView { display: none; flex-direction: column; }
         .month-block { margin-bottom: 20px; }
         .month-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 10px; color: var(--accent); text-transform: capitalize; }
@@ -100,11 +112,13 @@
         .dots-container { position: absolute; bottom: 2px; width: 100%; display: flex; justify-content: center; gap: 2px;}
         .dot { width: 4px; height: 4px; background-color: var(--gold); border-radius: 50%; }
 
+        /* Страница дня */
         #dayView { display: none; flex-direction: column; height: 100%; }
         #dayViewHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         #dayViewTitle { font-size: 18px; font-weight: bold; color: var(--accent); }
         #backBtn { background: var(--card); color: white; border: none; padding: 8px 15px; border-radius: 6px; }
 
+        /* Вкладка Цели */
         #goalsView { display: none; flex-direction: column; }
         .goal-list-item { background: var(--card); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--gold); display: flex; justify-content: space-between; align-items: center;}
         
@@ -112,15 +126,52 @@
         #createGoalForm input, #createGoalForm button { padding: 10px; border-radius: 6px; border: none; font-size: 14px;}
         #createGoalForm input { background: #333; color: white; }
         #createGoalForm button { background: var(--gold); color: black; font-weight: bold; }
+
+        /* Экран управления целью */
+        #goalDetailView { display: none; flex-direction: column; height: 100%; }
+        .goal-detail-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;}
+        .goal-detail-title { font-size: 18px; color: var(--gold); font-weight: bold; }
+        .goal-step-item { background: var(--card); padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .goal-step-date { font-size: 12px; color: var(--gray); margin-left: 34px;}
+
+        /* Архив (Кладбище / Зал Славы) */
+        #archiveView { display: none; flex-direction: column; }
+        .archive-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .archive-tabs button { flex:1; background: var(--card); color: white; border: 1px solid #333; padding: 10px; border-radius: 8px; }
+        .archive-tabs button.active { background: var(--gray); border-color: var(--gray); font-weight: bold;}
+        .archive-section { margin-bottom: 20px; }
+        .archive-section h3 { color: var(--gold); margin-bottom: 10px; font-size: 16px;}
+        
+        /* Статистика */
+        #statsView { display: none; flex-direction: column; gap: 15px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent); }
+        .stat-number { font-size: 24px; font-weight: bold; color: var(--gold); }
+
+        /* Вечерний отчет */
+        #eveningReport { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; padding: 20px; z-index: 1000; overflow-y: auto; }
+        #eveningReport h2 { text-align: center; color: var(--gold); margin-bottom: 5px;}
+        #eveningReport p { text-align: center; color: #aaa; margin-bottom: 20px;}
+        #eveningReport ul { flex-grow: 1; margin-bottom: 20px; }
+        #eveningReport button { background: var(--accent); color: white; border: none; padding: 15px; font-size: 16px; border-radius: 8px; font-weight: bold; }
+
     </style>
 </head>
 <body>
 
+    <!-- Приветствие -->
     <div id="splash">
         <h2>Это твой штаб.</h2>
         <p class="main-text">Здесь не ноют. Слабые сдаются — мы идем до конца.</p>
         <p class="pizdyulina" id="splashPhrase"></p>
         <button onclick="closeSplash()">ПРИСТУПИТЬ</button>
+    </div>
+
+    <!-- Вечерний отчет -->
+    <div id="eveningReport">
+        <h2>Закрываем день</h2>
+        <p>Ты выполнил всё, что планировал?</p>
+        <ul id="eveningTaskList"></ul>
+        <button onclick="closeEveningReport()">СОХРАНИТЬ ИТОГИ</button>
     </div>
 
     <div class="header">
@@ -137,10 +188,12 @@
         <button id="tab-tomorrow" onclick="switchTab('tomorrow')">Завтра</button>
         <button id="tab-goals" onclick="switchTab('goals')">Цели</button>
         <button id="tab-calendar" onclick="switchTab('calendar')">Календарь</button>
-        <button id="tab-failed" onclick="switchTab('failed')">Проебал</button>
+        <button id="tab-stats" onclick="switchTab('stats')">Статы</button>
+        <button id="tab-archive" onclick="switchTab('archive')">Архив</button>
     </div>
 
     <div id="content">
+        <!-- Основной вид -->
         <div id="standardView" style="display: flex; flex-direction: column; height: 100%;">
             <div id="bigGoalContainer"></div>
 
@@ -165,22 +218,39 @@
             <ul id="taskList"></ul>
         </div>
 
+        <!-- Цели -->
         <div id="goalsView">
             <button class="add-btn" style="margin-bottom: 15px; width: 100%;" onclick="toggleGoalForm()">+ НОВАЯ ЦЕЛЬ</button>
-            
             <div id="createGoalForm">
                 <input type="text" id="goalNameInput" placeholder="Название цели (напр. Купить тачку)">
                 <input type="date" id="goalDateInput">
                 <button onclick="createBigGoal()">СОЗДАТЬ</button>
             </div>
-
             <ul id="goalsList"></ul>
         </div>
 
+        <!-- Управление конкретной целью -->
+        <div id="goalDetailView">
+            <div class="goal-detail-header">
+                <button id="backBtn" onclick="closeGoalDetail()">← Назад</button>
+                <div class="goal-detail-title" id="goalDetailTitle">Цель</div>
+            </div>
+            <div class="input-area" style="flex-direction: column;">
+                <input type="text" id="goalStepInput" placeholder="Что нужно сделать?">
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <input type="date" id="goalStepDate" style="flex-grow:1;">
+                    <button class="add-btn" onclick="addGoalStep()">ДОБАВИТЬ ШАГ</button>
+                </div>
+            </div>
+            <ul id="goalStepsList"></ul>
+        </div>
+
+        <!-- Календарь -->
         <div id="calendarView">
             <div id="calendarMonths"></div>
         </div>
 
+        <!-- День -->
         <div id="dayView">
             <div id="dayViewHeader">
                 <button id="backBtn" onclick="closeDayView()">← Назад</button>
@@ -192,20 +262,63 @@
             </div>
             <ul id="dayTaskList"></ul>
         </div>
+
+        <!-- Архив -->
+        <div id="archiveView">
+            <div class="archive-tabs">
+                <button id="arch-btn-glory" class="active" onclick="switchArchive('glory')">Зал Славы</button>
+                <button id="arch-btn-grave" onclick="switchArchive('grave')">Кладбище</button>
+            </div>
+            <div id="archiveContent"></div>
+        </div>
+
+        <!-- Статистика -->
+        <div id="statsView">
+            <div class="stat-card">
+                <div>Выполнено задач за все время:</div>
+                <div class="stat-number" id="stat-tasks-done">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--gold);">
+                <div>Достигнуто больших целей:</div>
+                <div class="stat-number" id="stat-goals-done">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--gray);">
+                <div>Проебано задач:</div>
+                <div class="stat-number" id="stat-tasks-failed">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--gray);">
+                <div>Проебано целей:</div>
+                <div class="stat-number" id="stat-goals-failed">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--green);">
+                <div>Текущий стрик (дней):</div>
+                <div class="stat-number" id="stat-streak-current">0</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--gold);">
+                <div>Рекорд стрика (дней):</div>
+                <div class="stat-number" id="stat-streak-max">0</div>
+            </div>
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.expand(); tg.setHeaderColor('#121212'); }
 
-        let tasks = JSON.parse(localStorage.getItem('my_tasks_v3')) || [];
-        let goals = JSON.parse(localStorage.getItem('my_goals_v3')) || [];
-        
+        // Основные данные
+        let tasks = JSON.parse(localStorage.getItem('my_tasks_v4')) || [];
+        let goals = JSON.parse(localStorage.getItem('my_goals_v4')) || [];
+        let streak = parseInt(localStorage.getItem('my_streak_v4')) || 0;
+        let maxStreak = parseInt(localStorage.getItem('my_max_streak_v4')) || 0;
+
+        // Состояние UI
         let currentTab = 'today';
+        let currentArchiveTab = 'glory';
         let activeDayDate = null;
-        let streak = parseInt(localStorage.getItem('my_streak_v3')) || 0;
+        let activeGoalId = null;
         let currentTag = null;
 
+        // Тексты
         const pizdyuliny = [
             "Пока ты спишь, кто-то ебашит.",
             "Дисциплина — это делать то, что не хочется.",
@@ -214,6 +327,7 @@
             "Слабые ищут оправдания, сильные ищут пути."
         ];
 
+        // --- ДАТЫ ---
         function getTodayStr() {
             const d = new Date();
             return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -227,35 +341,67 @@
             return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
         }
 
+        // --- ЗВУК ---
+        function playClickSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+            } catch(e) {}
+        }
+
+        // --- ИНИЦИАЛИЗАЦИЯ ---
         function init() {
             processDayChange();
             checkSplash();
             updateStreakDisplay();
             switchTab('today');
+            updateStats();
         }
 
         function processDayChange() {
             const today = getTodayStr();
-            const lastDate = localStorage.getItem('last_process_date');
+            const lastDate = localStorage.getItem('last_process_date_v4');
             
             if (lastDate !== today) {
                 let hasFailed = false;
-                tasks = tasks.filter(t => {
-                    if (t.done && t.date < today) return false;
+                let activeTodayTasks = 0;
+
+                tasks.forEach(t => {
+                    if (t.done && t.date < today) { t.status = 'archived_done'; } // Отправляем в Зал Славы
                     if (!t.done && t.date < today && t.status !== 'failed') { t.status = 'failed'; hasFailed = true; }
-                    return true;
                 });
-                
-                const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-                const weekAgoStr = weekAgo.getFullYear() + '-' + String(weekAgo.getMonth()+1).padStart(2,'0') + '-' + String(weekAgo.getDate()).padStart(2,'0');
-                tasks = tasks.filter(t => t.date >= weekAgoStr);
+
+                // Проверяем Большие Цели
+                goals.forEach(g => {
+                    if (g.status === 'active' && daysBetween(today, g.deadline) < 0) {
+                        g.status = 'failed';
+                        hasFailed = true;
+                    }
+                    // Архивация выполненных целей (если все шаги сделаны)
+                    if (g.status === 'active' && g.steps.length > 0 && g.steps.every(s => s.done)) {
+                        g.status = 'achieved';
+                    }
+                });
 
                 if (hasFailed) { streak = 0; }
                 else if (lastDate !== null) { streak++; }
                 else { streak = 1; }
 
-                localStorage.setItem('my_streak_v3', streak);
-                localStorage.setItem('last_process_date', today);
+                if (streak > maxStreak) maxStreak = streak;
+
+                localStorage.setItem('my_streak_v4', streak);
+                localStorage.setItem('my_max_streak_v4', maxStreak);
+                localStorage.setItem('last_process_date_v4', today);
                 saveData();
             }
         }
@@ -264,6 +410,7 @@
             document.getElementById('streak-display').innerText = `🔥 ${streak} дней`;
         }
 
+        // --- ПРИВЕТСТВИЕ И ОТЧЕТ ---
         function checkSplash() {
             if (localStorage.getItem('last_visit') !== getTodayStr()) {
                 document.getElementById('splashPhrase').innerText = `"${pizdyuliny[Math.floor(Math.random() * pizdyuliny.length)]}"`;
@@ -273,17 +420,65 @@
         function closeSplash() {
             localStorage.setItem('last_visit', getTodayStr());
             document.getElementById('splash').style.display = 'none';
+            checkEveningReport();
         }
 
+        function checkEveningReport() {
+            const hour = new Date().getHours();
+            const today = getTodayStr();
+            if (hour >= 21 && localStorage.getItem('evening_report_' + today) !== 'done') {
+                const todayTasks = tasks.filter(t => t.date === today && t.status !== 'archived_done' && t.status !== 'failed');
+                if (todayTasks.length > 0) {
+                    const list = document.getElementById('eveningTaskList');
+                    list.innerHTML = '';
+                    todayTasks.forEach(t => {
+                        const li = document.createElement('li');
+                        li.className = t.done ? 'done' : '';
+                        li.innerHTML = `
+                            <div class="task-row">
+                                <div class="checkbox" onclick="toggleEveningTask(this, ${t.id})"></div>
+                                <span class="task-text">${t.text}</span>
+                            </div>
+                        `;
+                        list.appendChild(li);
+                    });
+                    document.getElementById('eveningReport').style.display = 'flex';
+                }
+            }
+        }
+
+        function toggleEveningTask(el, id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.done = !task.done;
+                if (task.done) {
+                    playClickSound();
+                    el.parentElement.parentElement.classList.add('done');
+                    if(tg) tg.HapticFeedback.notificationOccurred('success');
+                } else {
+                    el.parentElement.parentElement.classList.remove('done');
+                }
+                saveData();
+                if (currentTab === 'today') renderTasks();
+            }
+        }
+
+        function closeEveningReport() {
+            localStorage.setItem('evening_report_' + getTodayStr(), 'done');
+            document.getElementById('eveningReport').style.display = 'none';
+            renderTasks();
+        }
+
+        // --- ВКЛАДКИ ---
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             
-            document.getElementById('standardView').style.display = 'none';
-            document.getElementById('calendarView').style.display = 'none';
-            document.getElementById('goalsView').style.display = 'none';
-            document.getElementById('dayView').style.display = 'none';
+            ['standardView', 'calendarView', 'goalsView', 'dayView', 'goalDetailView', 'archiveView', 'statsView'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
 
             if (tab === 'calendar') {
                 document.getElementById('calendarView').style.display = 'flex';
@@ -291,6 +486,12 @@
             } else if (tab === 'goals') {
                 document.getElementById('goalsView').style.display = 'flex';
                 renderGoals();
+            } else if (tab === 'archive') {
+                document.getElementById('archiveView').style.display = 'flex';
+                renderArchive();
+            } else if (tab === 'stats') {
+                document.getElementById('statsView').style.display = 'flex';
+                updateStats();
             } else {
                 document.getElementById('standardView').style.display = 'flex';
                 document.getElementById('inputBlock').style.display = (tab === 'failed') ? 'none' : 'block';
@@ -300,6 +501,7 @@
             removeTag(); 
         }
 
+        // --- ТЕГИ ---
         function setTag(tagText) {
             currentTag = tagText;
             document.getElementById('activeTagText').innerText = tagText;
@@ -312,6 +514,7 @@
             document.getElementById('tagsContainer').style.display = 'flex';
         }
 
+        // --- ДОБАВЛЕНИЕ ЗАДАЧ ---
         function addTask() {
             const input = document.getElementById('taskInput');
             let text = input.value.trim();
@@ -330,9 +533,16 @@
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
+        // --- ДЕЙСТВИЯ С ЗАДАЧАМИ ---
         function toggleTask(id) {
             const task = tasks.find(t => t.id === id);
-            if (task) { task.done = !task.done; saveData(); renderTasks(); if(tg) tg.HapticFeedback.notificationOccurred('success'); }
+            if (task) { 
+                task.done = !task.done; 
+                if (task.done) playClickSound();
+                saveData(); 
+                renderTasks(); 
+                if (task.done && tg) tg.HapticFeedback.notificationOccurred('success'); 
+            }
         }
         function deleteTask(id) { tasks = tasks.filter(t => t.id !== id); saveData(); renderTasks(); }
         function setMainGoal(id) {
@@ -345,15 +555,15 @@
             if (task && select.value) { task.date = select.value; task.status = 'active'; task.done = false; saveData(); renderTasks(); }
         }
 
+        // --- ОТРИСОВКА ЗАДАЧ ---
         function renderTasks() {
             const list = document.getElementById('taskList');
             const today = getTodayStr();
             list.innerHTML = '';
 
             let filtered = tasks.filter(t => {
-                if (currentTab === 'today') return t.date === today && t.status !== 'failed';
-                if (currentTab === 'tomorrow') return t.date === getTomorrowStr() && t.status !== 'failed';
-                if (currentTab === 'failed') return t.status === 'failed';
+                if (currentTab === 'today') return t.date === today && t.status === 'active';
+                if (currentTab === 'tomorrow') return t.date === getTomorrowStr() && t.status === 'active';
                 return false;
             });
             filtered.sort((a, b) => (b.isMainGoal === true ? 1 : 0) - (a.isMainGoal === true ? 1 : 0));
@@ -376,39 +586,24 @@
                 const li = document.createElement('li');
                 let classes = '';
                 if (task.done) classes += 'done ';
-                if (task.status === 'failed') classes += 'failed ';
                 if (task.isMainGoal && !task.done) classes += 'main-goal ';
                 li.className = classes;
-
-                let reschedHTML = '';
-                if (task.status === 'failed') {
-                    reschedHTML = `
-                        <div class="reschedule-area" style="display:flex;">
-                            <select id="resched-${task.id}">
-                                <option value="${today}">Сегодня</option>
-                                <option value="${getTomorrowStr()}">Завтра</option>
-                            </select>
-                            <button onclick="rescheduleTask(${task.id})">Перенести</button>
-                        </div>
-                    `;
-                }
 
                 li.innerHTML = `
                     <div class="task-row">
                         <div class="checkbox" onclick="toggleTask(${task.id})"></div>
                         <span class="task-text">${task.text}</span>
                         <div class="task-actions">
-                            ${!task.done && task.status !== 'failed' ? `<button class="action-btn main-btn" onclick="setMainGoal(${task.id})">${task.isMainGoal ? '⭐' : '☆'}</button>` : ''}
+                            ${!task.done ? `<button class="action-btn main-btn" onclick="setMainGoal(${task.id})">${task.isMainGoal ? '⭐' : '☆'}</button>` : ''}
                             <button class="action-btn del-btn" onclick="deleteTask(${task.id})">✕</button>
                         </div>
                     </div>
-                    ${task.status === 'failed' ? `<div class="task-date">Проебал: ${task.date}</div>` : ''}
-                    ${reschedHTML}
                 `;
                 list.appendChild(li);
             });
         }
 
+        // --- БОЛЬШИЕ ЦЕЛИ ---
         function toggleGoalForm() {
             const form = document.getElementById('createGoalForm');
             form.style.display = form.style.display === 'flex' ? 'none' : 'flex';
@@ -419,7 +614,7 @@
             const date = document.getElementById('goalDateInput').value;
             if (!name || !date) return;
 
-            goals.push({ id: Date.now(), name: name, deadline: date, steps: [] });
+            goals.push({ id: Date.now(), name: name, deadline: date, steps: [], status: 'active' });
             document.getElementById('goalNameInput').value = '';
             document.getElementById('goalDateInput').value = '';
             toggleGoalForm();
@@ -432,18 +627,20 @@
             const list = document.getElementById('goalsList');
             list.innerHTML = '';
             
-            if (goals.length === 0) {
-                list.innerHTML = '<div style="text-align:center; color:#777;">У тебя нет больших целей. Придумай что-то глобальное.</div>';
+            const activeGoals = goals.filter(g => g.status === 'active');
+
+            if (activeGoals.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#777;">У тебя нет активных целей.</div>';
                 return;
             }
 
-            goals.forEach(goal => {
+            activeGoals.forEach(goal => {
                 const li = document.createElement('li');
                 li.className = 'goal-list-item';
                 const daysLeft = daysBetween(getTodayStr(), goal.deadline);
                 
                 li.innerHTML = `
-                    <div onclick="openGoal(${goal.id})" style="flex-grow:1;">
+                    <div onclick="openGoalDetail(${goal.id})" style="flex-grow:1;">
                         <div style="color:var(--gold); font-weight:bold; font-size:16px;">🎯 ${goal.name}</div>
                         <div style="font-size:12px; color:#aaa; margin-top:5px;">До дедлайна: ${daysLeft} дн.</div>
                     </div>
@@ -459,25 +656,114 @@
             renderGoals();
         }
 
+        // Управление целью
+        function openGoalDetail(id) {
+            activeGoalId = id;
+            document.getElementById('goalsView').style.display = 'none';
+            document.getElementById('goalDetailView').style.display = 'flex';
+            
+            const goal = goals.find(g => g.id === id);
+            document.getElementById('goalDetailTitle').innerText = goal.name;
+            renderGoalSteps();
+        }
+
+        function closeGoalDetail() {
+            activeGoalId = null;
+            document.getElementById('goalDetailView').style.display = 'none';
+            document.getElementById('goalsView').style.display = 'flex';
+            renderGoals();
+        }
+
+        function renderGoalSteps() {
+            const goal = goals.find(g => g.id === activeGoalId);
+            const list = document.getElementById('goalStepsList');
+            list.innerHTML = '';
+            
+            if (goal.steps.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#777; margin-top:20px;">Добавь шаги, чтобы начать путь.</div>';
+                return;
+            }
+
+            goal.steps.forEach(step => {
+                const li = document.createElement('li');
+                li.className = step.done ? 'done' : '';
+                
+                // Форматируем дату
+                const parts = step.date.split('-');
+                const dateFormat = `${parts[2]}.${parts[1]}`;
+                
+                li.innerHTML = `
+                    <div class="task-row">
+                        <div class="checkbox" onclick="toggleGoalStep(${step.id})"></div>
+                        <span class="task-text">${step.text}</span>
+                        <button class="action-btn del-btn" onclick="deleteGoalStep(${step.id})">✕</button>
+                    </div>
+                    <div class="goal-step-date">Выполнить до: ${dateFormat}</div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addGoalStep() {
+            const input = document.getElementById('goalStepInput');
+            const dateInput = document.getElementById('goalStepDate');
+            if (!input.value.trim() || !dateInput.value) return;
+
+            const goal = goals.find(g => g.id === activeGoalId);
+            goal.steps.push({ id: Date.now(), text: input.value.trim(), date: dateInput.value, done: false });
+            
+            input.value = '';
+            dateInput.value = '';
+            saveData();
+            renderGoalSteps();
+            if(tg) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function toggleGoalStep(id) {
+            const goal = goals.find(g => g.id === activeGoalId);
+            const step = goal.steps.find(s => s.id === id);
+            if (step) {
+                step.done = !step.done;
+                if (step.done) playClickSound();
+                saveData();
+                renderGoalSteps();
+                if (step.done && tg) tg.HapticFeedback.notificationOccurred('success');
+            }
+        }
+
+        function deleteGoalStep(id) {
+            const goal = goals.find(g => g.id === activeGoalId);
+            goal.steps = goal.steps.filter(s => s.id !== id);
+            saveData();
+            renderGoalSteps();
+        }
+
+        // Карточка большой цели на главной
         function renderBigGoalToday() {
             const container = document.getElementById('bigGoalContainer');
             container.innerHTML = '';
             
             if (currentTab !== 'today') return;
-            if (goals.length === 0) return;
 
-            const goal = goals[0]; // Берем первую цель
+            const activeGoals = goals.filter(g => g.status === 'active');
+            if (activeGoals.length === 0) return;
+
+            // Берем самую ближайшую по дедлайну
+            activeGoals.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+            const goal = activeGoals[0]; 
+            
             const daysLeft = daysBetween(getTodayStr(), goal.deadline);
-            let currentStep = goal.steps.find(s => !s.done);
+            let currentStep = goal.steps.find(s => !s.done && s.date <= getTodayStr());
 
             let msg = "";
+            let panicClass = "";
             if (daysLeft > 30) msg = "Время есть, но не расслабляйся.";
-            else if (daysLeft > 7) msg = "Дедлайн близко. Ускоряйся.";
-            else if (daysLeft >= 0) msg = "Пиздец как мало времени. Ебашь!";
-            else msg = "Дедлайн проехан. Ты либо сделал, либо проебал.";
+            else if (daysLeft > 3) msg = "Дедлайн близко. Ускоряйся.";
+            else if (daysLeft >= 0) { msg = "ПИЗДЕЦ КАК МАЛО ВРЕМЕНИ. ЕБАШЬ!"; panicClass = "panic"; }
+            else msg = "Дедлайн проехан.";
 
             let html = `
-                <div class="big-goal-card">
+                <div class="big-goal-card ${panicClass}">
                     <div class="big-goal-title">
                         <span>🎯 ${goal.name}</span>
                         <span class="big-goal-deadline">${daysLeft} дн.</span>
@@ -488,41 +774,31 @@
             if (currentStep) {
                 html += `
                     <div class="big-goal-step">
-                        <div class="checkbox" onclick="toggleGoalStep(${goal.id}, ${currentStep.id})"></div>
+                        <div class="checkbox" onclick="toggleBigGoalStep(${goal.id}, ${currentStep.id})"></div>
                         <span style="flex-grow:1; font-size:14px;">Шаг: ${currentStep.text}</span>
                     </div>
                 `;
             } else {
-                html += `<div style="font-size:12px; color:var(--green); margin-top:10px;">Все шаги выполнены. Осталось дождаться дедлайна.</div>`;
+                html += `<div style="font-size:12px; color:var(--green); margin-top:10px;">Нет задач на сегодня. Отдыхай или добавь новый шаг.</div>`;
             }
 
             html += `</div>`;
             container.innerHTML = html;
         }
 
-        function openGoal(id) {
-            const goal = goals.find(g => g.id === id);
-            if (!goal) return;
-            const action = prompt("Введи НОВЫЙ ШАГ для цели '" + goal.name + "':");
-            if (action && action.trim() !== '') {
-                goal.steps.push({ id: Date.now(), text: action.trim(), done: false });
-                saveData();
-                renderBigGoalToday();
-            }
-        }
-
-        function toggleGoalStep(goalId, stepId) {
+        function toggleBigGoalStep(goalId, stepId) {
             const goal = goals.find(g => g.id === goalId);
-            if (!goal) return;
             const step = goal.steps.find(s => s.id === stepId);
             if (step) {
                 step.done = !step.done;
+                if (step.done) playClickSound();
                 saveData();
                 renderBigGoalToday();
-                if(tg) tg.HapticFeedback.notificationOccurred('success');
+                if (step.done && tg) tg.HapticFeedback.notificationOccurred('success');
             }
         }
 
+        // --- КАЛЕНДАРЬ ---
         function renderCalendar() {
             const container = document.getElementById('calendarMonths');
             container.innerHTML = '';
@@ -543,11 +819,16 @@
                 const totalDays = new Date(year, month + 1, 0).getDate();
                 for (let day = 1; day <= totalDays; day++) {
                     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                    const tasksOnDay = tasks.filter(t => t.date === dateStr && t.status !== 'failed');
+                    
+                    // Считаем задачи на этот день
+                    let tasksOnDay = tasks.filter(t => t.date === dateStr && t.status === 'active').length;
+                    // Добавляем шаги целей на этот день
+                    goals.forEach(g => { if(g.status === 'active') tasksOnDay += g.steps.filter(s => s.date === dateStr && !s.done).length; });
+
                     let dotsHTML = '';
-                    if (tasksOnDay.length > 0) {
+                    if (tasksOnDay > 0) {
                         dotsHTML = '<div class="dots-container">';
-                        for(let k=0; k < Math.min(tasksOnDay.length, 4); k++) dotsHTML += '<div class="dot"></div>';
+                        for(let k=0; k < Math.min(tasksOnDay, 4); k++) dotsHTML += '<div class="dot"></div>';
                         dotsHTML += '</div>';
                     }
                     let classNames = 'cal-day'; if (dateStr === today) classNames += ' today';
@@ -571,8 +852,37 @@
 
         function renderDayViewTasks() {
             const list = document.getElementById('dayTaskList'); list.innerHTML = '';
-            const filtered = tasks.filter(t => t.date === activeDayDate && t.status !== 'failed');
-            if (filtered.length === 0) { list.innerHTML = '<div style="text-align:center; color:#777; margin-top:20px;">На этот день пусто.</div>'; return; }
+            
+            // Обычные задачи
+            const filtered = tasks.filter(t => t.date === activeDayDate && t.status === 'active');
+            
+            // Задачи из целей
+            let goalSteps = [];
+            goals.forEach(g => { 
+                if(g.status === 'active') {
+                    g.steps.filter(s => s.date === activeDayDate && !s.done).forEach(s => goalSteps.push({...s, goalId: g.id}));
+                }
+            });
+
+            if (filtered.length === 0 && goalSteps.length === 0) { 
+                list.innerHTML = '<div style="text-align:center; color:#777; margin-top:20px;">На этот день пусто.</div>'; 
+                return; 
+            }
+
+            // Выводим шаги целей
+            goalSteps.forEach(step => {
+                const li = document.createElement('li');
+                li.className = 'main-goal'; // Выделяем золотым
+                li.innerHTML = `
+                    <div class="task-row">
+                        <div class="checkbox" onclick="toggleGoalStepFromCalendar(${step.goalId}, ${step.id})"></div>
+                        <span class="task-text">🎯 ${step.text}</span>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+
+            // Выводим обычные
             filtered.forEach(task => {
                 const li = document.createElement('li');
                 if (task.done) li.className = 'done';
@@ -600,10 +910,114 @@
 
         function toggleTaskFromDay(id) { toggleTask(id); renderDayViewTasks(); }
         function deleteTaskFromDay(id) { deleteTask(id); renderDayViewTasks(); }
+        function toggleGoalStepFromCalendar(gId, sId) {
+            const goal = goals.find(g => g.id === gId);
+            const step = goal.steps.find(s => s.id === sId);
+            if(step) { step.done = !step.done; if(step.done) playClickSound(); saveData(); renderDayViewTasks(); }
+        }
+
+        // --- АРХИВ ---
+        function switchArchive(type) {
+            currentArchiveTab = type;
+            document.getElementById('arch-btn-glory').classList.remove('active');
+            document.getElementById('arch-btn-grave').classList.remove('active');
+            document.getElementById('arch-btn-' + (type === 'glory' ? 'glory' : 'grave')).classList.add('active');
+            renderArchive();
+        }
+
+        function renderArchive() {
+            const container = document.getElementById('archiveContent');
+            container.innerHTML = '';
+
+            if (currentArchiveTab === 'glory') {
+                const doneTasks = tasks.filter(t => t.status === 'archived_done');
+                const achievedGoals = goals.filter(g => g.status === 'achieved');
+
+                container.innerHTML = `
+                    <div class="archive-section">
+                        <h3>🏆 Достигнутые цели</h3>
+                        <ul id="arch-goals-list"></ul>
+                    </div>
+                    <div class="archive-section">
+                        <h3>✅ Выполненные задачи</h3>
+                        <ul id="arch-tasks-list"></ul>
+                    </div>
+                `;
+
+                const gList = document.getElementById('arch-goals-list');
+                if(achievedGoals.length === 0) gList.innerHTML = '<li style="color:#777; font-size:14px;">Пока нет достижений.</li>';
+                achievedGoals.forEach(g => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span style="color:var(--gold); font-weight:bold;">🎯 ${g.name}</span>`;
+                    gList.appendChild(li);
+                });
+
+                const tList = document.getElementById('arch-tasks-list');
+                if(doneTasks.length === 0) tList.innerHTML = '<li style="color:#777; font-size:14px;">Пока нет выполненных задач.</li>';
+                doneTasks.forEach(t => {
+                    const li = document.createElement('li');
+                    li.className = 'done';
+                    li.innerHTML = `<span class="task-text">${t.text}</span>`;
+                    tList.appendChild(li);
+                });
+
+            } else {
+                const failedTasks = tasks.filter(t => t.status === 'failed');
+                const failedGoals = goals.filter(g => g.status === 'failed');
+
+                container.innerHTML = `
+                    <div class="archive-section">
+                        <h3>💀 Проебанные цели</h3>
+                        <ul id="fail-goals-list"></ul>
+                    </div>
+                    <div class="archive-section">
+                        <h3>❌ Проебанные задачи</h3>
+                        <ul id="fail-tasks-list"></ul>
+                    </div>
+                `;
+
+                const gList = document.getElementById('fail-goals-list');
+                if(failedGoals.length === 0) gList.innerHTML = '<li style="color:#777; font-size:14px;">Тут чисто. Молодец.</li>';
+                failedGoals.forEach(g => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span style="color:var(--accent); font-weight:bold;">🎯 ${g.name} (Дедлайн: ${g.deadline})</span>`;
+                    gList.appendChild(li);
+                });
+
+                const tList = document.getElementById('fail-tasks-list');
+                if(failedTasks.length === 0) tList.innerHTML = '<li style="color:#777; font-size:14px;">Тут чисто. Молодец.</li>';
+                failedTasks.forEach(t => {
+                    const li = document.createElement('li');
+                    li.className = 'failed';
+                    li.innerHTML = `
+                        <div class="task-row">
+                            <span class="task-text">${t.text}</span>
+                        </div>
+                        <div style="font-size:12px; color:#aaa; margin-top:5px;">Дата: ${t.date}</div>
+                    `;
+                    tList.appendChild(li);
+                });
+            }
+        }
+
+        // --- СТАТИСТИКА ---
+        function updateStats() {
+            const doneTasks = tasks.filter(t => t.status === 'archived_done').length;
+            const failedTasks = tasks.filter(t => t.status === 'failed').length;
+            const achievedGoals = goals.filter(g => g.status === 'achieved').length;
+            const failedGoals = goals.filter(g => g.status === 'failed').length;
+
+            document.getElementById('stat-tasks-done').innerText = doneTasks;
+            document.getElementById('stat-tasks-failed').innerText = failedTasks;
+            document.getElementById('stat-goals-done').innerText = achievedGoals;
+            document.getElementById('stat-goals-failed').innerText = failedGoals;
+            document.getElementById('stat-streak-current').innerText = streak;
+            document.getElementById('stat-streak-max').innerText = maxStreak;
+        }
 
         function saveData() {
-            localStorage.setItem('my_tasks_v3', JSON.stringify(tasks));
-            localStorage.setItem('my_goals_v3', JSON.stringify(goals));
+            localStorage.setItem('my_tasks_v4', JSON.stringify(tasks));
+            localStorage.setItem('my_goals_v4', JSON.stringify(goals));
         }
 
         init();
