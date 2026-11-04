@@ -3,155 +3,599 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Трекер Ронина</title>
+    <title>Мой Штаб</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #e0e0e0;
+            --accent: #e53935;
+            --green: #4caf50;
+            --gold: #ffb300;
+            --gray: #777;
+        }
         body {
-            background-color: #121212;
-            color: #e0e0e0;
-            font-family: sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             height: 100vh;
             box-sizing: border-box;
+            overflow: hidden;
         }
-        h1 {
-            text-align: center;
-            font-size: 24px;
-            border-bottom: 2px solid #e53935;
-            padding-bottom: 10px;
+
+        /* Приветствие */
+        #splash {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; z-index: 1000;
         }
-        .input-area {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+        #splash h2 { font-size: 26px; margin-bottom: 10px; text-transform: uppercase; color: var(--accent); }
+        #splash p.main-text { font-size: 18px; margin-bottom: 20px; }
+        #splash p.pizdyulina { font-size: 14px; color: var(--gold); font-style: italic; margin-bottom: 40px; }
+        #splash button {
+            background-color: var(--accent); color: white; border: none;
+            padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 8px;
         }
-        input {
-            flex-grow: 1;
-            padding: 12px;
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
+
+        /* Шапка */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        h1 { font-size: 20px; text-transform: uppercase; margin: 0; letter-spacing: 1px;}
+        #streak-display { font-size: 14px; font-weight: bold; color: var(--gold); background: #2a2a2a; padding: 5px 10px; border-radius: 20px; }
+        
+        /* Прогресс-бар */
+        .progress-container { width: 100%; height: 6px; background: var(--card); border-radius: 3px; margin-bottom: 15px; overflow: hidden; }
+        #progress-bar { height: 100%; width: 0%; background: var(--green); transition: width 0.3s ease; }
+
+        /* Вкладки */
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+        .tabs button {
+            flex: 1; background-color: var(--card); color: var(--text);
+            border: 1px solid #333; padding: 10px 5px; border-radius: 8px;
+            font-size: 13px; cursor: pointer; transition: 0.2s;
         }
-        button.add-btn {
-            padding: 12px 20px;
-            background-color: #e53935;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
+        .tabs button.active { background-color: var(--accent); border-color: var(--accent); font-weight: bold; }
+
+        /* Область ввода */
+        .input-area { display: flex; gap: 10px; margin-bottom: 10px; }
+        input[type="text"] {
+            flex-grow: 1; padding: 12px; background-color: var(--card);
+            border: 1px solid #333; border-radius: 8px; color: white; font-size: 16px; outline: none;
         }
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+        button.add-btn { padding: 12px 20px; background-color: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; }
+        
+        /* Теги */
+        .tags { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tag-btn { background: transparent; border: 1px solid #555; color: #aaa; padding: 5px 10px; border-radius: 15px; font-size: 12px; white-space: nowrap; }
+        .tag-btn:active { background: #333; }
+
+        /* Списки */
+        #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 20px;}
+        ul { list-style: none; padding: 0; margin: 0; }
         li {
-            background-color: #1e1e1e;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border-left: 4px solid #e53935;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+            background-color: var(--card); padding: 12px; margin-bottom: 10px;
+            border-radius: 8px; border-left: 4px solid var(--accent);
+            display: flex; flex-direction: column; gap: 8px; position: relative;
         }
-        li.done {
-            border-left-color: #4caf50;
-            opacity: 0.6;
+        li.done { border-left-color: var(--green); opacity: 0.5; }
+        li.failed { border-left-color: var(--gray); }
+        li.main-goal { border: 2px solid var(--gold); border-left: 6px solid var(--gold); box-shadow: 0 0 10px rgba(255, 179, 0, 0.2); }
+        
+        .task-row { display: flex; align-items: center; gap: 10px; }
+        .checkbox {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #555;
+            display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0;
         }
-        .task-text {
-            flex-grow: 1;
+        li.done .checkbox { background-color: var(--green); border-color: var(--green); }
+        .checkbox::after { content: '✓'; color: white; display: none; font-size: 14px; }
+        li.done .checkbox::after { display: block; }
+        
+        .task-text { flex-grow: 1; font-size: 16px; word-break: break-word; }
+        li.done .task-text { text-decoration: line-through; }
+        
+        .task-actions { display: flex; gap: 10px; }
+        .action-btn { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.7; }
+        .action-btn:active { opacity: 1; }
+        .action-btn.main-btn { color: var(--gold); }
+        .action-btn.del-btn { color: var(--gray); }
+
+        .task-date { font-size: 12px; color: var(--gray); margin-left: 34px; margin-top: -4px; }
+
+        /* Перенос для проебав */
+        .reschedule-area { display: none; align-items: center; gap: 10px; margin-top: 5px; }
+        li.failed .reschedule-area { display: flex; }
+        .reschedule-area select { background: #333; color: white; border: none; padding: 5px; border-radius: 4px; flex-grow: 1;}
+        .reschedule-area button { background: var(--accent); color: white; border: none; padding: 5px 10px; border-radius: 4px; }
+
+        /* Календарь */
+        #calendarView { display: none; flex-direction: column; }
+        .month-block { margin-bottom: 20px; }
+        .month-title { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 10px; color: var(--accent); text-transform: capitalize; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+        .day-name { font-size: 11px; color: var(--gray); }
+        .cal-day {
+            padding: 8px 0; background-color: var(--card); border-radius: 6px;
+            font-size: 14px; cursor: pointer; border: 1px solid transparent; position: relative;
         }
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #777;
-            font-size: 20px;
-            cursor: pointer;
-        }
+        .cal-day.empty { background: none; cursor: default; }
+        .cal-day.today { border-color: var(--accent); font-weight: bold; }
+        .cal-day.selected { background-color: var(--accent); }
+        
+        /* Точки задач в календаре */
+        .dots-container { position: absolute; bottom: 2px; width: 100%; display: flex; justify-content: center; gap: 2px;}
+        .dot { width: 4px; height: 4px; background-color: var(--gold); border-radius: 50%; }
+
+        /* Страница дня (Календарь) */
+        #dayView { display: none; flex-direction: column; height: 100%; }
+        #dayViewHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        #dayViewTitle { font-size: 18px; font-weight: bold; color: var(--accent); }
+        #backBtn { background: var(--card); color: white; border: none; padding: 8px 15px; border-radius: 6px; }
+
     </style>
 </head>
 <body>
-    <h1>Трекер Ронина</h1>
-    
-    <div class="input-area">
-        <input type="text" id="taskInput" placeholder="Что сделаешь сегодня?">
-        <button class="add-btn" id="addBtn">В БОЙ</button>
+
+    <!-- Экран приветствия -->
+    <div id="splash">
+        <h2>Это твой штаб.</h2>
+        <p class="main-text">Здесь не ноют. Слабые сдаются — мы идем до конца.</p>
+        <p class="pizdyulina" id="splashPhrase"></p>
+        <button onclick="closeSplash()">ПРИСТУПИТЬ</button>
+    </div>
+
+    <div class="header">
+        <h1>Мой Штаб</h1>
+        <div id="streak-display">🔥 0 дней</div>
     </div>
     
-    <ul id="taskList"></ul>
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="tabs">
+        <button id="tab-today" onclick="switchTab('today')">Сегодня</button>
+        <button id="tab-tomorrow" onclick="switchTab('tomorrow')">Завтра</button>
+        <button id="tab-calendar" onclick="switchTab('calendar')">Календарь</button>
+        <button id="tab-failed" onclick="switchTab('failed')">Проебал</button>
+    </div>
+
+    <div id="content">
+        <!-- Стандартный вид (Сегодня, Завтра, Проебал) -->
+        <div id="standardView" style="display: flex; flex-direction: column; height: 100%;">
+            <div id="inputBlock">
+                <div class="input-area">
+                    <input type="text" id="taskInput" placeholder="Что нужно сделать?">
+                    <button class="add-btn" onclick="addTask()">В БОЙ</button>
+                </div>
+                <div class="tags">
+                    <button class="tag-btn" onclick="addTag('Спорт: ')">+ Спорт</button>
+                    <button class="tag-btn" onclick="addTag('Работа: ')">+ Работа</button>
+                    <button class="tag-btn" onclick="addTag('Блог: ')">+ Блог</button>
+                    <button class="tag-btn" onclick="addTag('Дом: ')">+ Дом</button>
+                </div>
+            </div>
+            <ul id="taskList"></ul>
+        </div>
+
+        <!-- Вид Календаря -->
+        <div id="calendarView">
+            <div id="calendarMonths"></div>
+        </div>
+
+        <!-- Страница конкретного дня -->
+        <div id="dayView">
+            <div id="dayViewHeader">
+                <button id="backBtn" onclick="closeDayView()">← Назад</button>
+                <div id="dayViewTitle">Дата</div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="dayInput" placeholder="Задача на этот день...">
+                <button class="add-btn" onclick="addTaskDayView()">В БОЙ</button>
+            </div>
+            <ul id="dayTaskList"></ul>
+        </div>
+    </div>
 
     <script>
-        // Инициализация Telegram
-        let tg = window.Telegram?.WebApp;
-        if (tg) tg.expand();
+        // --- ИНИЦИАЛИЗАЦИЯ ---
+        const tg = window.Telegram?.WebApp;
+        if (tg) { tg.expand(); tg.setHeaderColor('#121212'); }
 
-        // Загружаем задачи
-        let tasks = JSON.parse(localStorage.getItem('ronin_tasks')) || [];
+        let tasks = JSON.parse(localStorage.getItem('my_tasks_v2')) || [];
+        let currentTab = 'today';
+        let activeDayDate = null; // Для страницы дня
+        let streak = parseInt(localStorage.getItem('my_streak')) || 0;
 
-        const listElement = document.getElementById('taskList');
-        const inputElement = document.getElementById('taskInput');
-        const addButton = document.getElementById('addBtn');
+        const pizdyuliny = [
+            "Пока ты спишь, кто-то ебашит.",
+            "Дисциплина — это делать то, что не хочется.",
+            "Твой единственный конкурент — это ты вчерашний.",
+            "Сделал сегодня — свободен завтра.",
+            "Слабые ищут оправдания, сильные ищут пути."
+        ];
 
-        function renderTasks() {
-            listElement.innerHTML = '';
-            tasks.forEach(function(task, index) {
-                let li = document.createElement('li');
-                if (task.done) {
-                    li.className = 'done';
-                }
+        // --- УТИЛИТЫ ДАТ ---
+        function getTodayStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        }
+        function getTomorrowStr() {
+            const d = new Date(); d.setDate(d.getDate() + 1);
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+        }
+
+        // --- СТАРТ И ЛОГИКА ДНЯ ---
+        function init() {
+            processDayChange();
+            checkSplash();
+            updateStreakDisplay();
+            switchTab('today');
+        }
+
+        function processDayChange() {
+            const today = getTodayStr();
+            const lastDate = localStorage.getItem('last_process_date');
+            
+            if (lastDate !== today) {
+                let hasFailedYesterday = false;
                 
-                li.innerHTML = '<span class="task-text" onclick="toggleTask(' + index + ')">' + 
-                               (task.done ? '✅ ' : '⭕ ') + task.text + 
-                               '</span>' +
-                               '<button class="delete-btn" onclick="deleteTask(' + index + ')">✕</button>';
-                listElement.appendChild(li);
-            });
+                // 1. Обработка старых задач
+                tasks = tasks.filter(t => {
+                    // Удаляем выполненные задачи с прошлых дней (они сгорают)
+                    if (t.done && t.date < today) return false; 
+                    
+                    // Помечаем невыполненные с прошлых дней как "проебал"
+                    if (!t.done && t.date < today && t.status !== 'failed') {
+                        t.status = 'failed';
+                        hasFailedYesterday = true;
+                    }
+                    return true;
+                });
+
+                // 2. Очистка старых "проебав" (старше 7 дней)
+                const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+                const weekAgoStr = weekAgo.getFullYear() + '-' + String(weekAgo.getMonth()+1).padStart(2,'0') + '-' + String(weekAgo.getDate()).padStart(2,'0');
+                tasks = tasks.filter(t => t.date >= weekAgoStr);
+
+                // 3. Логика стрика (если были проебы - сгорает, иначе растет)
+                if (hasFailedYesterday) {
+                    streak = 0;
+                } else if (lastDate !== null) {
+                    streak++; // Если не было проебав и это не первый запуск
+                } else {
+                    streak = 1; // Первый день
+                }
+
+                localStorage.setItem('my_streak', streak);
+                localStorage.setItem('last_process_date', today);
+                saveData();
+            }
+        }
+
+        function updateStreakDisplay() {
+            document.getElementById('streak-display').innerText = `🔥 ${streak} дней`;
+        }
+
+        // --- ПРИВЕТСТВИЕ ---
+        function checkSplash() {
+            const today = getTodayStr();
+            if (localStorage.getItem('last_visit') !== today) {
+                document.getElementById('splashPhrase').innerText = `"${pizdyuliny[Math.floor(Math.random() * pizdyuliny.length)]}"`;
+                document.getElementById('splash').style.display = 'flex';
+            }
+        }
+        function closeSplash() {
+            localStorage.setItem('last_visit', getTodayStr());
+            document.getElementById('splash').style.display = 'none';
+        }
+
+        // --- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ---
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            document.getElementById('standardView').style.display = 'none';
+            document.getElementById('calendarView').style.display = 'none';
+            document.getElementById('dayView').style.display = 'none';
+
+            if (tab === 'calendar') {
+                document.getElementById('calendarView').style.display = 'flex';
+                renderCalendar();
+            } else {
+                document.getElementById('standardView').style.display = 'flex';
+                // Скрываем ввод для "Проебал"
+                document.getElementById('inputBlock').style.display = (tab === 'failed') ? 'none' : 'block';
+                renderTasks();
+            }
+        }
+
+        // --- ДОБАВЛЕНИЕ ЗАДАЧ ---
+        function addTag(tagText) {
+            const input = document.getElementById('taskInput');
+            input.value = tagText + input.value;
+            input.focus();
         }
 
         function addTask() {
-            let text = inputElement.value.trim();
-            if (text !== '') {
-                tasks.push({ text: text, done: false });
-                inputElement.value = '';
-                saveAndRender();
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            let taskDate = getTodayStr();
+            if (currentTab === 'tomorrow') taskDate = getTomorrowStr();
+
+            tasks.push({ id: Date.now(), text: text, date: taskDate, done: false, status: 'active', isMainGoal: false });
+            input.value = '';
+            saveData();
+            renderTasks();
+            if (tg) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // --- ДЕЙСТВИЯ С ЗАДАЧАМИ ---
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.done = !task.done;
+                saveData();
+                renderTasks();
+                if (tg) tg.HapticFeedback.notificationOccurred('success');
             }
         }
 
-        function toggleTask(index) {
-            tasks[index].done = !tasks[index].done;
-            saveAndRender();
-        }
-
-        function deleteTask(index) {
-            tasks.splice(index, 1);
-            saveAndRender();
-        }
-
-        function saveAndRender() {
-            localStorage.setItem('ronin_tasks', JSON.stringify(tasks));
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveData();
             renderTasks();
         }
 
-        // Навешиваем события на кнопку (вместо onclick в HTML)
-        addButton.addEventListener('click', addTask);
-        
-        // Навешиваем событие на Enter
-        inputElement.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addTask();
+        function setMainGoal(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                // Снимаем звезду с других задач на этот же день
+                tasks.forEach(t => { if(t.date === task.date) t.isMainGoal = false; });
+                task.isMainGoal = true;
+                saveData();
+                renderTasks();
+                if (tg) tg.HapticFeedback.impactOccurred('medium');
             }
-        });
+        }
 
-        // Первый запуск
-        renderTasks();
+        function rescheduleTask(id) {
+            const select = document.getElementById(`resched-${id}`);
+            const newDate = select.value;
+            if (!newDate) return;
+
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.date = newDate;
+                task.status = 'active';
+                task.done = false;
+            }
+            saveData();
+            renderTasks();
+        }
+
+        // --- ОТРИСОВКА СПИСКОВ ---
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            const today = getTodayStr();
+            list.innerHTML = '';
+
+            let filtered = tasks.filter(t => {
+                if (currentTab === 'today') return t.date === today && t.status !== 'failed';
+                if (currentTab === 'tomorrow') return t.date === getTomorrowStr() && t.status !== 'failed';
+                if (currentTab === 'failed') return t.status === 'failed';
+                return false;
+            });
+
+            // Сортируем: сначала главная цель, потом обычные
+            filtered.sort((a, b) => (b.isMainGoal === true ? 1 : 0) - (a.isMainGoal === true ? 1 : 0));
+            
+            // Считаем прогресс для "Сегодня"
+            if (currentTab === 'today' && filtered.length > 0) {
+                const doneCount = filtered.filter(t => t.done).length;
+                const percent = Math.round((doneCount / filtered.length) * 100);
+                document.getElementById('progress-bar').style.width = percent + '%';
+                document.getElementById('progress-bar').style.background = percent === 100 ? 'var(--gold)' : 'var(--green)';
+            } else {
+                document.getElementById('progress-bar').style.width = '0%';
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#777; margin-top:20px;">Здесь пусто.</div>';
+                return;
+            }
+
+            filtered.forEach(task => {
+                const li = document.createElement('li');
+                let classes = '';
+                if (task.done) classes += 'done ';
+                if (task.status === 'failed') classes += 'failed ';
+                if (task.isMainGoal && !task.done) classes += 'main-goal ';
+                li.className = classes;
+
+                let reschedHTML = '';
+                if (task.status === 'failed') {
+                    reschedHTML = `
+                        <div class="reschedule-area">
+                            <select id="resched-${task.id}">
+                                <option value="${today}">На сегодня</option>
+                                <option value="${getTomorrowStr()}">На завтра</option>
+                            </select>
+                            <button onclick="rescheduleTask(${task.id})">Перенести</button>
+                        </div>
+                    `;
+                }
+
+                li.innerHTML = `
+                    <div class="task-row">
+                        <div class="checkbox" onclick="toggleTask(${task.id})"></div>
+                        <span class="task-text">${task.text}</span>
+                        <div class="task-actions">
+                            ${!task.done && task.status !== 'failed' ? `<button class="action-btn main-btn" onclick="setMainGoal(${task.id})">${task.isMainGoal ? '⭐' : '☆'}</button>` : ''}
+                            <button class="action-btn del-btn" onclick="deleteTask(${task.id})">✕</button>
+                        </div>
+                    </div>
+                    ${task.status === 'failed' ? `<div class="task-date">Проебал: ${task.date}</div>` : ''}
+                    ${reschedHtml = reschedHTML}
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // --- КАЛЕНДАРЬ ---
+        function renderCalendar() {
+            const container = document.getElementById('calendarMonths');
+            container.innerHTML = '';
+            const today = getTodayStr();
+            
+            const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            const daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+            const now = new Date();
+            
+            for (let i = 0; i < 3; i++) {
+                const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+                const month = d.getMonth();
+                const year = d.getFullYear();
+                
+                const monthBlock = document.createElement('div');
+                monthBlock.className = 'month-block';
+                
+                let html = `<div class="month-title">${months[month]} ${year}</div>`;
+                html += `<div class="calendar-grid">`;
+                daysOfWeek.forEach(day => html += `<div class="day-name">${day}</div>`);
+
+                // Пустые ячейки до первого дня
+                let firstDay = d.getDay();
+                if (firstDay === 0) firstDay = 7; // Воскресенье - 7-й день
+                for (let j = 1; j < firstDay; j++) {
+                    html += `<div class="cal-day empty"></div>`;
+                }
+
+                // Дни месяца
+                const totalDays = new Date(year, month + 1, 0).getDate();
+                for (let day = 1; day <= totalDays; day++) {
+                    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    
+                    // Проверяем, есть ли задачи на этот день (исключая выполненные)
+                    const tasksOnDay = tasks.filter(t => t.date === dateStr && t.status !== 'failed');
+                    
+                    let dotsHTML = '';
+                    if (tasksOnDay.length > 0) {
+                        dotsHTML = '<div class="dots-container">';
+                        // Максимум 4 точки, чтобы не перегружать
+                        for(let k=0; k < Math.min(tasksOnDay.length, 4); k++) {
+                            dotsHTML += '<div class="dot"></div>';
+                        }
+                        dotsHTML += '</div>';
+                    }
+
+                    let classNames = 'cal-day';
+                    if (dateStr === today) classNames += ' today';
+
+                    html += `<div class="${classNames}" onclick="openDayView('${dateStr}')">${day}${dotsHTML}</div>`;
+                }
+                html += `</div>`;
+                monthBlock.innerHTML = html;
+                container.appendChild(monthBlock);
+            }
+        }
+
+        // --- СТРАНИЦА ДНЯ (ИЗ КАЛЕНДАРЯ) ---
+        function openDayView(dateStr) {
+            activeDayDate = dateStr;
+            document.getElementById('calendarView').style.display = 'none';
+            document.getElementById('dayView').style.display = 'flex';
+            
+            // Форматируем дату для заголовка (например, "15 Ноября")
+            const parts = dateStr.split('-');
+            const d = new Date(parts[0], parts[1]-1, parts[2]);
+            const months = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'];
+            document.getElementById('dayViewTitle').innerText = `${d.getDate()} ${months[d.getMonth()]}`;
+            
+            renderDayViewTasks();
+        }
+
+        function closeDayView() {
+            activeDayDate = null;
+            document.getElementById('dayView').style.display = 'none';
+            document.getElementById('calendarView').style.display = 'flex';
+            renderCalendar(); // Обновляем точки
+        }
+
+        function renderDayViewTasks() {
+            const list = document.getElementById('dayTaskList');
+            list.innerHTML = '';
+            
+            const filtered = tasks.filter(t => t.date === activeDayDate && t.status !== 'failed');
+            // Сортировка главной цели
+            filtered.sort((a, b) => (b.isMainGoal === true ? 1 : 0) - (a.isMainGoal === true ? 1 : 0));
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#777; margin-top:20px;">На этот день пусто.</div>';
+                return;
+            }
+
+            filtered.forEach(task => {
+                const li = document.createElement('li');
+                let classes = '';
+                if (task.done) classes += 'done ';
+                if (task.isMainGoal && !task.done) classes += 'main-goal ';
+                li.className = classes;
+
+                li.innerHTML = `
+                    <div class="task-row">
+                        <div class="checkbox" onclick="toggleTaskFromDay(${task.id})"></div>
+                        <span class="task-text">${task.text}</span>
+                        <div class="task-actions">
+                            ${!task.done ? `<button class="action-btn main-btn" onclick="setMainGoalFromDay(${task.id})">${task.isMainGoal ? '⭐' : '☆'}</button>` : ''}
+                            <button class="action-btn del-btn" onclick="deleteTaskFromDay(${task.id})">✕</button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function addTaskDayView() {
+            const input = document.getElementById('dayInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            tasks.push({ id: Date.now(), text: text, date: activeDayDate, done: false, status: 'active', isMainGoal: false });
+            input.value = '';
+            saveData();
+            renderDayViewTasks();
+            if (tg) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // Дублированные функции для работы внутри календаря
+        function toggleTaskFromDay(id) { toggleTask(id); renderDayViewTasks(); }
+        function deleteTaskFromDay(id) { deleteTask(id); renderDayViewTasks(); }
+        function setMainGoalFromDay(id) { 
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                tasks.forEach(t => { if(t.date === task.date) t.isMainGoal = false; });
+                task.isMainGoal = true;
+                saveData();
+                renderDayViewTasks();
+                if (tg) tg.HapticFeedback.impactOccurred('medium');
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('my_tasks_v2', JSON.stringify(tasks));
+        }
+
+        // Запуск
+        init();
     </script>
 </body>
 </html>
