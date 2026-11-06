@@ -62,14 +62,15 @@
         .prog-labels div { flex: 1; }
 
         /* ВКЛАДКИ */
-        .tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tabs button {
-            flex: 1; background-color: var(--card); color: var(--text);
-            border: 1px solid #333; padding: 12px 0; border-radius: 10px;
-            font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap;
-        }
-        .tabs button.active { background-color: var(--accent); border-color: var(--accent); font-weight: bold; }
-        .tabs button:active { transform: scale(0.97); }
+       .tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; align-items: stretch; }
+.tabs button {
+    flex: 1; background-color: var(--card); color: var(--text);
+    border: 1px solid #333; padding: 12px 0; border-radius: 10px;
+    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    display: flex; align-items: center; justify-content: center;
+    box-sizing: border-box;
+}
+.tabs button.active { background-color: var(--accent); border-color: var(--accent); font-weight: bold; }
 
         /* КОНТЕНТ */
         #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
