@@ -768,7 +768,34 @@ function handleChatKeyPress(e) {
         function saveData() {
             localStorage.setItem('my_path_tasks', JSON.stringify(tasks));
         }
+function loadChatHistory() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    
+    chatMessages.innerHTML = '';
 
+    let history = JSON.parse(localStorage.getItem('my_ai_history')) || [];
+
+    if (history.length === 0) {
+        const welcome = document.createElement('div');
+        welcome.className = 'msg-bubble msg-ai';
+        welcome.innerText = "Я твой мотиватор. Выкладывай, что случилось, и мы это разъебем.";
+        chatMessages.appendChild(welcome);
+        return;
+    }
+
+    history.forEach(msg => {
+        const bubble = document.createElement('div');
+        bubble.className = msg.role === 'user' ? 'msg-bubble msg-user' : 'msg-bubble msg-ai';
+        bubble.innerText = msg.text;
+        chatMessages.appendChild(bubble);
+    });
+
+    scrollToBottom();
+}
+
+// Вызываем загрузку истории при старте
+loadChatHistory();
         init();
     </script>
 </body>
