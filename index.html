@@ -735,7 +735,7 @@
     history.forEach(msg => {
         fullPrompt += (msg.role === "user" ? "Пользователь: " : "ИИ: ") + msg.text + "\n";
     });
-    fullPrompt += "Ответь коротко:";
+   
 
     try {
         // Отправляем запрос напрямую в бесплатный ИИ
