@@ -115,26 +115,66 @@
         /* КОНТЕНТ */
         #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
         
-        /* ВВОД И ТЕГИ */
-        .input-area { display: flex; gap: 8px; margin-bottom: 10px; }
-        input[type="text"] {
-            flex-grow: 1; padding: 14px; background-color: var(--card);
-            border: 1px solid #333; border-radius: 10px; color: white; font-size: 15px; outline: none;
-        }
-        input[type="text"]:focus { border-color: var(--accent); }
-        button.add-btn {
-            padding: 0 20px; background-color: var(--accent); color: white;
-            border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; transition: transform 0.1s;
-        }
-        button.add-btn:active { transform: scale(0.95); }
-        
-        .tags-container { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; min-height: 30px; }
-        .tag-btn {
-            background: transparent; border: 1px solid #555; color: #aaa;
-            padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; transition: 0.2s;
-        }
-        .tag-btn:active { background: #333; }
-        .tag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+       /* --- ПЛАВАЮЩАЯ КНОПКА (FAB) --- */
+.fab-btn {
+    position: fixed; bottom: 80px; right: 20px;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, #39FF14, #2ecc71);
+    color: #000; font-size: 32px; font-weight: bold; border: none;
+    box-shadow: 0 4px 20px rgba(57, 255, 20, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 100;
+}
+.fab-btn:active { transform: scale(0.9); }
+.fab-btn.empty-state {
+    bottom: 50%; right: 50%; transform: translate(50%, 50%);
+    width: 100px; height: 100px; font-size: 50px;
+}
+
+/* --- ВЫЕЗЖАЮЩАЯ ПАНЕЛЬ --- */
+.add-panel-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.add-panel-overlay.active { opacity: 1; pointer-events: auto; }
+
+.add-panel {
+    position: absolute; bottom: 0; left: 0; width: 100%;
+    background: #111; border-top-left-radius: 25px; border-top-right-radius: 25px;
+    padding: 20px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-sizing: border-box; border-top: 1px solid rgba(57, 255, 20, 0.2);
+}
+.add-panel-overlay.active .add-panel { transform: translateY(0); }
+
+.panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: #fff; font-weight: bold; font-size: 18px; }
+.close-panel-btn { background: none; border: none; color: #777; font-size: 20px; cursor: pointer; }
+
+/* --- ПОЛЕ ВВОДА --- */
+.input-area { 
+    display: flex; gap: 8px; margin-bottom: 15px; 
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px; padding: 6px 6px 6px 16px; align-items: center;
+}
+input[type="text"] {
+    flex-grow: 1; background: transparent; border: none;
+    color: #fff; font-size: 15px; outline: none;
+}
+input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.4); }
+button.add-btn {
+    background: #39FF14; color: #000; border: none; border-radius: 15px; 
+    width: 42px; height: 42px; flex-shrink: 0; font-size: 20px; font-weight: bold; cursor: pointer; transition: all 0.2s;
+}
+
+/* --- ТЕГИ --- */
+.tags-container { display: flex; gap: 8px; flex-wrap: wrap; padding-bottom: 20px; }
+.tag-btn {
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7); padding: 8px 14px; border-radius: 12px;
+    font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.tag-btn.active { background: rgba(57, 255, 20, 0.15); border-color: #39FF14; color: #39FF14; }
         
         /* СПИСКИ ЗАДАЧ */
         ul { list-style: none; }
@@ -250,22 +290,30 @@
         
         <!-- СПИСКИ -->
         <div id="standardView" style="display: flex; flex-direction: column; height: 100%;">
-            <div id="inputBlock">
-                <div class="input-area">
-                    <input type="text" id="taskInput" placeholder="Что нужно сделать?">
-                    <button class="add-btn" onclick="addTask()">В БОЙ</button>
-                </div>
-                <div class="tags-container">
-                    <button class="tag-btn" onclick="selectTag('Спорт')">+ Спорт</button>
-                    <button class="tag-btn" onclick="selectTag('Работа')">+ Работа</button>
-                    <button class="tag-btn" onclick="selectTag('Блог')">+ Блог</button>
-                    <button class="tag-btn" onclick="selectTag('Личное')">+ Личное</button>
-                    <div id="selectedTagDisplay">
-                        <span id="selectedTagText"></span>
-                        <button onclick="clearTag()">✕</button>
-                    </div>
-                </div>
-            </div>
+            <!-- Плавающая кнопка добавления (FAB) -->
+<button id="fabBtn" class="fab-btn" onclick="openAddPanel()">+</button>
+
+<!-- Выезжающая панель снизу -->
+<div id="addPanelOverlay" class="add-panel-overlay" onclick="closeAddPanel(event)">
+    <div class="add-panel" onclick="event.stopPropagation()">
+        <div class="panel-header">
+            <span>Новая задача</span>
+            <button class="close-panel-btn" onclick="closeAddPanel()">✕</button>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="taskInput" placeholder="Что нужно сделать?">
+            <button class="add-btn" onclick="addTask()">➔</button>
+        </div>
+        
+        <div class="tags-container">
+            <button class="tag-btn" onclick="selectTag('Спорт')">Спорт</button>
+            <button class="tag-btn" onclick="selectTag('Работа')">Работа</button>
+            <button class="tag-btn" onclick="selectTag('Блог')">Блог</button>
+            <button class="tag-btn" onclick="selectTag('Личное')">Личное</button>
+        </div>
+    </div>
+</div>
             <ul id="taskList"></ul>
         </div>
 
@@ -449,7 +497,16 @@
             }
             clearTag(); 
         }
+function openAddPanel() {
+    document.getElementById('addPanelOverlay').classList.add('active');
+    setTimeout(() => document.getElementById('taskInput').focus(), 300);
+}
 
+function closeAddPanel(e) {
+    if (e && e.target !== e.currentTarget && !e.target.classList.contains('close-panel-btn')) return;
+    document.getElementById('addPanelOverlay').classList.remove('active');
+    document.getElementById('taskInput').value = '';
+}
         function addTask() {
             const input = document.getElementById('taskInput');
             let text = input.value.trim();
@@ -464,6 +521,7 @@
             clearTag();
             saveData();
             renderTasks();
+            closeAddPanel();
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
 
@@ -513,6 +571,14 @@
         }
 
         function renderTasks() {
+            const fab = document.getElementById('fabBtn');
+if (fab) {
+    if (tasks.length === 0) {
+        fab.classList.add('empty-state');
+    } else {
+        fab.classList.remove('empty-state');
+    }
+}
             const list = document.getElementById('taskList');
             const today = getTodayStr();
             list.innerHTML = '';
