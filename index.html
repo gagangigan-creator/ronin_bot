@@ -93,10 +93,13 @@
         .prog-labels div { flex: 1; }
 
         /* ВКЛАДКИ */
-    .tabs { 
+   .tabs { 
     display: flex; gap: 8px; margin-bottom: 20px; 
     overflow-x: auto; padding-bottom: 5px; align-items: stretch; height: 45px; 
+    -ms-overflow-style: none;  /* Скрыть скроллбар в IE и Edge */
+    scrollbar-width: none;  /* Скрыть скроллбар в Firefox */
 }
+.tabs::-webkit-scrollbar { display: none; } /* Скрыть скроллбар в Chrome/Safari */
 .tabs button {
     flex: 1; background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 0; border-radius: 20px;
