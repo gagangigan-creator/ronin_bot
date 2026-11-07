@@ -113,7 +113,7 @@
     transform: scale(1.02);
 }
         /* КОНТЕНТ */
-        #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 100dvh; padding-bottom: 80px; }
         
        /* --- ПЛАВАЮЩАЯ КНОПКА (FAB) --- */
 .fab-btn {
@@ -163,8 +163,25 @@ input[type="text"] {
 }
 input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.4); }
 button.add-btn {
-    background: #39FF14; color: #000; border: none; border-radius: 15px; 
-    width: 42px; height: 42px; flex-shrink: 0; font-size: 20px; font-weight: bold; cursor: pointer; transition: all 0.2s;
+    background: #39FF14;
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+    transition: transform 0.2s;
+    padding: 0;
+    padding-left: 4px;
+}
+button.add-btn:active {
+    transform: scale(0.9);
 }
 
 /* --- ТЕГИ --- */
@@ -196,6 +213,13 @@ button.add-btn {
         .icon-btn svg { width: 22px; height: 22px; fill: var(--gray); transition: fill 0.2s; }
         .icon-btn:active svg { fill: var(--text); }
         .icon-btn.check svg { fill: var(--green); }
+        .icon-btn.check {
+    background: #39FF14 !important;
+    border-color: #39FF14 !important;
+}
+.icon-btn.check svg {
+    fill: #000 !important; /* Черная галочка на зеленом фоне */
+}
         .icon-btn.main-btn svg { fill: var(--gold); }
         .task-text { flex-grow: 1; font-size: 16px; word-break: break-word; }
         li.done .task-text { text-decoration: line-through; }
@@ -303,7 +327,7 @@ button.add-btn {
         
         <div class="input-area">
             <input type="text" id="taskInput" placeholder="Что нужно сделать?">
-            <button class="add-btn" onclick="addTask()">➔</button>
+            <button class="add-btn" onclick="addTask()">➤</button>
         </div>
         
         <div class="tags-container">
@@ -324,7 +348,7 @@ button.add-btn {
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chatInput" placeholder="Напиши сообщение..." onkeypress="handleChatKeyPress(event)">
-                <button class="add-btn" onclick="sendMessage()">Отправить</button>
+                <button class="add-btn" onclick="sendMessage()">➤</button>
             </div>
         </div>
 
@@ -451,15 +475,22 @@ button.add-btn {
             document.getElementById('splash').style.display = 'none';
         }
 
-        function selectTag(tag) {
-            selectedTag = tag;
-            document.getElementById('selectedTagText').innerText = tag;
-            document.getElementById('selectedTagDisplay').style.display = 'flex';
-            document.querySelectorAll('.tag-btn').forEach(btn => {
-                btn.disabled = true;
-                btn.style.opacity = '0.3';
-            });
-        }
+        let selectedTag = null;
+
+function selectTag(tag) {
+    const btn = event.currentTarget; // Ловим ту кнопку, на которую нажали
+    
+    // Если нажали на ту же кнопку, что уже выбрана — отменяем выбор
+    if (selectedTag === tag) {
+        selectedTag = null;
+        btn.classList.remove('active');
+    } else {
+        // Иначе убираем активный класс у всех и ставим на эту
+        selectedTag = tag;
+        document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+}
 
         function clearTag() {
             selectedTag = null;
@@ -507,35 +538,59 @@ function closeAddPanel(e) {
     document.getElementById('addPanelOverlay').classList.remove('active');
     document.getElementById('taskInput').value = '';
 }
-        function addTask() {
-            const input = document.getElementById('taskInput');
-            let text = input.value.trim();
-            if (!text && !selectedTag) return;
+       function addTask() {
+    const input = document.getElementById('taskInput');
+    const text = input.value.trim();
+    if (!text) return;
 
-            let finalText = selectedTag ? `[${selectedTag}] ${text}` : text;
-            let taskDate = getTodayStr();
-            if (currentTab === 'tomorrow') taskDate = getTomorrowStr();
+    // Получаем текущую дату (Сегодня) или завтрашнюю (Завтра)
+    let dateToSave = new Date();
+    if (currentTab === 'tomorrow') {
+        dateToSave.setDate(dateToSave.getDate() + 1);
+    }
+    const dateStr = dateToSave.toISOString().split('T')[0];
 
-            tasks.push({ id: Date.now(), text: finalText, date: taskDate, done: false, status: 'active', isMainGoal: false });
-            input.value = '';
-            clearTag();
-            saveData();
-            renderTasks();
-            closeAddPanel();
-            if (tg) tg.HapticFeedback.impactOccurred('light');
-        }
+    // Создаем объект задачи
+    const newTask = {
+        id: Date.now(),
+        text: text,
+        date: dateStr,
+        done: false,
+        status: 'active',
+        tag: selectedTag || '' // Если тег выбран — сохраняем
+    };
 
-        function toggleTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-                task.done = !task.done;
-                if(task.done) task.isMainGoal = false; 
-                saveData();
-                renderTasks();
-                renderHall();
-                if (tg) tg.HapticFeedback.notificationOccurred('success');
-            }
-        }
+    // Добавляем в массив и сохраняем
+    tasks.push(newTask);
+    saveData();
+
+    // Очищаем поле и теги
+    input.value = '';
+    if (typeof clearTag === 'function') clearTag();
+    
+    // Обновляем экран
+    if (typeof renderTasks === 'function') renderTasks();
+    
+    // Закрываем модалку, если она открыта
+    if (typeof closeModal === 'function') {
+        closeModal();
+    } else {
+        // Если модалки нет (ты пишешь на главном экране), просто сворачиваем клавиатуру
+        input.blur();
+    }
+}
+
+       function toggleTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+        task.done = !task.done;
+        if (task.done) task.isMainGoal = false;
+        saveData();
+        renderTasks();
+        renderHall();
+        if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }
+}
 
         function deleteTask(id) {
             tasks = tasks.filter(t => t.id !== id);
@@ -839,7 +894,7 @@ if (fab) {
     // Получаем историю из памяти телефона
     let history = JSON.parse(localStorage.getItem('my_ai_history')) || [];
     history.push({ role: "user", text: text });
-    if (history.length > 5) history.shift(); // Держим только 5 последних
+    if (history.length > 5) history.shift(); // Держим только 20 последних
 
     // Формируем промпт для ИИ
     let fullPrompt = "Ты — суровый, но справедливый психолог и мотиватор. Твоя задача — поддержать пользователя, который чувствует пустоту или усталость. Говори коротко, по-мужски, без воды. Можно с юмором. Пиши максимум 2-3 предложения. НЕ пиши списки, НЕ используй markdown. НЕ пиши код, НЕ решай математику, НЕ отвечай на вопросы не по теме. Обращайся на 'ты', без имен.\n\nИстория диалога:\n"
@@ -854,15 +909,20 @@ if (fab) {
         const aiAnswer = await response.text();
 
         // Показываем ответ в приложении
-        aiBubble.innerText = aiAnswer;
+                // Проверка на лимит (ошибка 404)
+        if (response.status === 404 || aiAnswer.includes('404') || aiAnswer.includes('Not Found')) {
+            aiBubble.innerText = "Лимит на сегодня исчерпан, брат. Отдыхай, копи силы до завтра 💪";
+        } else {
+            aiBubble.innerText = aiAnswer;
+        }
 
         // Сохраняем ответ ИИ в память
         history.push({ role: "assistant", text: aiAnswer });
-        if (history.length > 5) history.shift();
+        if (history.length > 20) history.shift();
         localStorage.setItem('my_ai_history', JSON.stringify(history));
 
     } catch (error) {
-        aiBubble.innerText = "Связь с мозгом потеряна. Попробуй позже.";
+        aiBubble.innerText = "Лимит на сегодня исчерпан, брат. Отдыхай, копи силы до завтра 💪";
         console.error(error);
     }
     scrollToBottom();
