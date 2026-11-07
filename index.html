@@ -95,7 +95,7 @@
         /* ВКЛАДКИ */
    .tabs { 
     display: flex; gap: 8px; margin-bottom: 20px; 
-    overflow-x: auto; padding-bottom: 5px; align-items: stretch; height: 45px; 
+    overflow-x: auto; padding-bottom: 5px; align-items: stretch; padding: 20px 5px; 
     -ms-overflow-style: none;  /* Скрыть скроллбар в IE и Edge */
     scrollbar-width: none;  /* Скрыть скроллбар в Firefox */
 }
@@ -109,7 +109,7 @@
 }
 .tabs button.active { 
     background: #39FF14; color: #000; border-color: #39FF14; 
-    box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); 
+    box-shadow: 0 0 25px rgba(57, 255, 20, 0.4); 
     transform: scale(1.02);
 }
         /* КОНТЕНТ */
@@ -228,7 +228,7 @@ button.add-btn:active {
         #chatView { display: none; flex-direction: column; height: 100%; }
         .chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px;}
         .msg-bubble { padding: 12px; border-radius: 12px; max-width: 80%; font-size: 15px; line-height: 1.4; }
-        .msg-user { background-color: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+       .msg-user { background-color: rgba(57, 255, 20, 0.15) !important; border: 1px solid rgba(57, 255, 20, 0.3) !important; color: #fff !important; align-self: flex-end; border-bottom-right-radius: 2px; }
         .msg-ai { background-color: var(--card); color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #333; }
         .chat-input-area { display: flex; gap: 8px; margin-top: auto; padding-top: 10px; }
 
@@ -879,6 +879,9 @@ if (fab) {
     const userBubble = document.createElement('div');
     userBubble.className = 'msg-bubble msg-user';
     userBubble.innerText = text;
+                  userBubble.style.backgroundColor = 'rgba(57, 255, 20, 0.15)'; // Прозрачный зеленый
+    userBubble.style.color = '#fff'; // Белый текст
+    userBubble.style.border = '1px solid rgba(57, 255, 20, 0.3)'; // Зеленая рамка
     chatMessages.appendChild(userBubble);
 
     input.value = '';
