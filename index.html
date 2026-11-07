@@ -17,20 +17,51 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
-        body {
-            background-color: var(--bg);
-            background-image: linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.85)), url('bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
+       body {
+    background-color: #09090b; /* Глубокий черный */
+    margin: 0;
+    padding: 0;
+    color: white;
+    overflow-x: hidden;
+    position: relative;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.bg-animations {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; pointer-events: none; overflow: hidden;
+}
+
+/* Ломаные неоновые линии */
+.line {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, #39FF14, transparent);
+    opacity: 0.15;
+    height: 1px;
+    width: 150%;
+    left: -25%;
+    box-shadow: 0 0 10px #39FF14;
+}
+
+.line-1 { top: 20%; transform: rotate(-15deg); animation: move1 10s infinite linear; }
+.line-2 { top: 60%; transform: rotate(25deg); animation: move2 15s infinite linear; }
+.line-3 { top: 80%; transform: rotate(-35deg); animation: move3 12s infinite linear; opacity: 0.1; }
+
+@keyframes move1 {
+    0% { transform: translateX(-10%) rotate(-15deg); }
+    50% { transform: translateX(10%) rotate(-15deg); }
+    100% { transform: translateX(-10%) rotate(-15deg); }
+}
+@keyframes move2 {
+    0% { transform: translateX(10%) rotate(25deg); }
+    50% { transform: translateX(-10%) rotate(25deg); }
+    100% { transform: translateX(10%) rotate(25deg); }
+}
+@keyframes move3 {
+    0% { transform: translateY(0) rotate(-35deg); }
+    50% { transform: translateY(-20px) rotate(-35deg); }
+    100% { transform: translateY(0) rotate(-35deg); }
+}
 
         /* ЭКРАН ПРИВЕТСТВИЯ */
         #splash {
@@ -62,15 +93,22 @@
         .prog-labels div { flex: 1; }
 
         /* ВКЛАДКИ */
-      .tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; align-items: stretch; height: 45px; }
+    .tabs { 
+    display: flex; gap: 8px; margin-bottom: 20px; 
+    overflow-x: auto; padding-bottom: 5px; align-items: stretch; height: 45px; 
+}
 .tabs button {
-    flex: 1; background-color: var(--card); color: var(--text);
-    border: 1px solid #333; padding: 12px 0; border-radius: 10px;
-    font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; overflow: hidden;
+    flex: 1; background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 0; border-radius: 20px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap; overflow: hidden;
     display: flex; align-items: center; justify-content: center;
     box-sizing: border-box; height: 100%;
 }
-.tabs button.active { background-color: var(--accent); border-color: var(--accent); font-weight: bold; }
+.tabs button.active { 
+    background: #39FF14; color: #000; border-color: #39FF14; 
+    box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); 
+    transform: scale(1.02);
+}
         /* КОНТЕНТ */
         #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
         
@@ -169,7 +207,11 @@
     </style>
 </head>
 <body>
-
+<div class="bg-animations">
+    <div class="line line-1"></div>
+    <div class="line line-2"></div>
+    <div class="line line-3"></div>
+</div>
     <div id="splash">
         <h2>Мой путь</h2>
         <p class="main-desc">Это твой штаб.<br>Здесь не ноют.<br>Слабые сдаются — мы идем до конца.</p>
