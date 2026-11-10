@@ -7,21 +7,24 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #121212;
-            --card: #1e1e1e;
-            --text: #e0e0e0;
-            --accent: #e53935;
-            --green: #4caf50;
-            --gold: #ffb300;
-            --gray: #777;
-        }
+    --bg: var(--tg-theme-bg-color, #0f0f0f);
+    --card: var(--tg-theme-secondary-bg-color, #1c1c1e);
+    --text: var(--tg-theme-text-color, #ffffff);
+    --hint: var(--tg-theme-hint-color, #8e8e93);
+    --button: var(--tg-theme-button-color, #007aff);
+    --button-text: var(--tg-theme-button-text-color, #ffffff);
+    
+    --green: #4cd964;
+    --gold: #ffcc00;
+    --shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
        body {
-    background-color: #09090b; /* Глубокий черный */
+    background-color: var(--bg);
     margin: 0;
     padding: 0;
-    color: white;
+    color: var(--text);
     overflow-x: hidden;
     position: relative;
     font-family: system-ui, -apple-system, sans-serif;
@@ -93,24 +96,40 @@
         .prog-labels div { flex: 1; }
 
         /* ВКЛАДКИ */
-   .tabs { 
-    display: flex; gap: 8px; margin-bottom: 20px; 
-    overflow-x: auto; padding-bottom: 5px; align-items: stretch; padding: 20px 5px; 
-    -ms-overflow-style: none;  /* Скрыть скроллбар в IE и Edge */
-    scrollbar-width: none;  /* Скрыть скроллбар в Firefox */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    overflow-x: auto;
+    padding: 15px 5px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
-.tabs::-webkit-scrollbar { display: none; } /* Скрыть скроллбар в Chrome/Safari */
+.tabs::-webkit-scrollbar {
+    display: none;
+}
 .tabs button {
-    flex: 1; background: rgba(255, 255, 255, 0.05); color: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 0; border-radius: 20px;
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    box-sizing: border-box; height: 100%;
+    flex: 1;
+    background-color: var(--tg-theme-secondary-bg-color, #1c1c1e);
+    color: var(--tg-theme-text-color, #ffffff);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 12px 0;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    height: 100%;
 }
-.tabs button.active { 
-    background: #39FF14; color: #000; border-color: #39FF14; 
-    box-shadow: 0 0 25px rgba(57, 255, 20, 0.4); 
-    transform: scale(1.02);
+.tabs button.active {
+    background-color: var(--button);
+    color: var(--button-text);
+    border-color: var(--button);
 }
         /* КОНТЕНТ */
         #content { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 100dvh; padding-bottom: 80px; }
@@ -119,9 +138,9 @@
 .fab-btn {
     position: fixed; bottom: 80px; right: 20px;
     width: 60px; height: 60px; border-radius: 50%;
-    background: linear-gradient(135deg, #39FF14, #2ecc71);
-    color: #000; font-size: 32px; font-weight: bold; border: none;
-    box-shadow: 0 4px 20px rgba(57, 255, 20, 0.5);
+    background: var(--button);
+    color: var(--button-text); font-size: 32px; font-weight: bold; border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     z-index: 100;
@@ -163,8 +182,8 @@ input[type="text"] {
 }
 input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.4); }
 button.add-btn {
-    background: #39FF14;
-    color: #000;
+        background: var(--button);
+    color: var(--button-text);
     border: none;
     border-radius: 50%;
     width: 44px;
@@ -175,7 +194,7 @@ button.add-btn {
     justify-content: center;
     font-size: 18px;
     cursor: pointer;
-    box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     transition: transform 0.2s;
     padding: 0;
     padding-left: 4px;
@@ -195,18 +214,18 @@ button.add-btn:active {
         
         /* СПИСКИ ЗАДАЧ */
         ul { list-style: none; }
-        li {
-            background-color: rgba(30, 30, 30, 0.8);
-            backdrop-filter: blur(5px);
-            padding: 15px; margin-bottom: 10px;
-            border-radius: 12px; border-left: 4px solid var(--accent);
-            display: flex; flex-direction: column; gap: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.2s;
-        }
-        li:active { background-color: #2a2a2a; }
-        li.done { border-left-color: var(--green); opacity: 0.5; }
-        li.failed { border-left-color: var(--gray); }
-        li.main-goal { border: 1px solid var(--gold); border-left: 6px solid var(--gold); }
+       li {
+    background-color: var(--card);
+    backdrop-filter: blur(5px);
+    padding: 15px; margin-bottom: 10px;
+    border-radius: 12px;
+    display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.2s;
+}=
+        li:active { opacity: 0.7; transform: scale(0.99); }
+       li.done { opacity: 0.5; }
+li.failed { opacity: 0.6; }
+li.main-goal { border: 1px solid var(--gold); }
         
         .task-row { display: flex; align-items: center; gap: 12px; }
         .icon-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; }
@@ -214,8 +233,7 @@ button.add-btn:active {
         .icon-btn:active svg { fill: var(--text); }
         .icon-btn.check svg { fill: var(--green); }
         .icon-btn.check {
-    background: #39FF14 !important;
-    border-color: #39FF14 !important;
+background: var(--button) !important;    border-color: #39FF14 !important;
 }
 .icon-btn.check svg {
     fill: #000 !important; /* Черная галочка на зеленом фоне */
@@ -228,8 +246,18 @@ button.add-btn:active {
         #chatView { display: none; flex-direction: column; height: 100%; }
         .chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px;}
         .msg-bubble { padding: 12px; border-radius: 12px; max-width: 80%; font-size: 15px; line-height: 1.4; }
-       .msg-user { background-color: rgba(57, 255, 20, 0.15) !important; border: 1px solid rgba(57, 255, 20, 0.3) !important; color: #fff !important; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .msg-ai { background-color: var(--card); color: var(--text); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #333; }
+       .msg-user {
+    background-color: var(--button);
+    color: var(--button-text);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+.msg-ai {
+    background-color: var(--card);
+    color: var(--text);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
         .chat-input-area { display: flex; gap: 8px; margin-top: auto; padding-top: 10px; }
 
         /* КАЛЕНДАРЬ */
@@ -852,7 +880,27 @@ if (fab) {
                 list.appendChild(li);
             });
         }
+function addTask() {
+    const input = document.getElementById('taskInput');
+    const text = input.value.trim();
+    if (!text) return;
 
+    let dateToSave = new Date();
+    if (currentTab === 'tomorrow') {
+        dateToSave.setDate(dateToSave.getDate() + 1);
+    }
+    const dateStr = dateToSave.toISOString().split('T')[0];
+
+    tasks.push({ id: Date.now(), text: text, date: dateStr, done: false, status: 'active', isMainGoal: false, tag: selectedTag || '' });
+    saveData();
+    input.value = '';
+    if (typeof clearTag === 'function') clearTag();
+    renderTasks();
+    
+    if (typeof tg !== 'undefined' && tg.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred('light');
+    }
+}
         function addTaskDayView() {
             const input = document.getElementById('dayInput');
             const text = input.value.trim();
