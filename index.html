@@ -15,230 +15,441 @@
             --button: var(--tg-theme-button-color, #2481cc);
             --button-text: var(--tg-theme-button-text-color, #ffffff);
             --separator: color-mix(in srgb, var(--tg-theme-hint-color, #8e8e93) 25%, transparent);
+
+            /* Акценты статусов */
             --green: #34c759;
             --gold: #ff9f0a;
             --red: #ff3b30;
-            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
-            --shadow-strong: 0 4px 16px rgba(0,0,0,0.18);
-            --radius: 16px;
+
+            /* Нео-брутализм: контур и жёсткие тени цвета текста темы */
+            --ink: var(--text);
+            --bw: 2px;
+            --hard: 4px 4px 0 var(--ink);
+            --hard-sm: 2px 2px 0 var(--ink);
+            --flat: 0 0 0 var(--ink);
+            --mono: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, "Courier New", monospace;
+
+            --ease: cubic-bezier(0.2, 0.9, 0.3, 1);
+            --dur: 0.18s;
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; }
         body {
             background-color: var(--bg);
+            background-image: radial-gradient(color-mix(in srgb, var(--text) 16%, transparent) 1px, transparent 1px);
+            background-size: 16px 16px;
             color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.4;
             height: 100dvh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
+            -webkit-text-size-adjust: 100%;
         }
         button { font-family: inherit; }
 
         /* ШАПКА */
         .header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 14px 16px 10px;
+            padding: 18px 16px 14px;
         }
-        h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+        h1 {
+            display: flex; align-items: center; gap: 10px;
+            font-family: var(--mono);
+            font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1;
+            text-transform: uppercase;
+        }
+        h1::before {
+            content: ""; width: 14px; height: 14px; flex-shrink: 0;
+            background: var(--button);
+            border: var(--bw) solid var(--ink);
+            box-shadow: var(--hard-sm);
+        }
         #streak-display {
-            font-size: 14px; font-weight: 600; color: var(--gold);
-            background: var(--card); padding: 7px 14px; border-radius: 999px;
-            box-shadow: var(--shadow);
+            font-family: var(--mono);
+            font-size: 15px; font-weight: 800; color: #000;
+            background: var(--gold);
+            padding: 6px 12px;
+            border: var(--bw) solid var(--ink);
+            box-shadow: var(--hard-sm);
+            font-variant-numeric: tabular-nums;
         }
 
-        /* ВКЛАДКИ-ПИЛЮЛИ */
+        /* ВКЛАДКИ */
         .tabs {
-            display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto;
-            padding: 2px 16px 6px; scrollbar-width: none; flex-shrink: 0;
+            display: flex; gap: 10px; overflow-x: auto;
+            padding: 6px 16px 12px;
+            border-bottom: var(--bw) solid var(--ink);
+            scrollbar-width: none; flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
         }
         .tabs::-webkit-scrollbar { display: none; }
         .tabs button {
-            flex: 0 0 auto; background-color: var(--card); color: var(--text);
-            border: none; padding: 9px 16px; border-radius: 999px;
-            font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;
-            transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+            flex: 0 0 auto;
+            background-color: var(--bg); color: var(--ink);
+            border: var(--bw) solid var(--ink); border-radius: 0;
+            padding: 9px 14px;
+            font-family: var(--mono); font-size: 12px; font-weight: 700;
+            letter-spacing: 0.6px; text-transform: uppercase;
+            cursor: pointer; white-space: nowrap;
+            box-shadow: var(--hard-sm);
+            transition: transform var(--dur) var(--ease),
+                        box-shadow var(--dur) var(--ease),
+                        background-color var(--dur) ease,
+                        color var(--dur) ease;
         }
-        .tabs button:active { transform: scale(0.95); }
+        .tabs button:active { transform: translate(2px, 2px); box-shadow: var(--flat); }
         .tabs button.active {
-            background-color: var(--button); color: var(--button-text);
-            box-shadow: 0 2px 8px color-mix(in srgb, var(--button) 40%, transparent);
+            background-color: var(--ink); color: var(--bg);
+            transform: translate(2px, 2px);
+            box-shadow: var(--flat);
         }
 
         /* КОНТЕНТ */
         #content {
-            flex-grow: 1; overflow-y: auto; padding: 0 16px calc(90px + var(--safe-bottom));
+            flex-grow: 1; overflow-y: auto; padding: 18px 16px calc(100px + var(--safe-bottom));
             display: flex; flex-direction: column; min-height: 0;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            scrollbar-width: none;
+        }
+        #content::-webkit-scrollbar { display: none; }
+        #content:has(#chatView[style*="display: flex"]) {
+            padding-bottom: calc(16px + var(--safe-bottom));
         }
 
-        /* ПОЛЕ ВВОДА — КАПСУЛА */
-        .input-area {
-            display: flex; gap: 8px; margin-bottom: 12px;
-            background: var(--card);
-            border-radius: 999px; padding: 5px 5px 5px 18px; align-items: center;
-            box-shadow: var(--shadow);
-            transition: box-shadow 0.2s ease;
+        /* СМЕНА ВКЛАДОК */
+        #standardView, #chatView, #calendarView, #hallView {
+            animation: viewIn 0.28s var(--ease) backwards;
         }
-        .input-area:focus-within {
-            box-shadow: 0 0 0 2px color-mix(in srgb, var(--button) 55%, transparent);
+        @keyframes viewIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ПОЛЯ ВВОДА */
+        .input-area, .chat-input-area {
+            display: flex; gap: 10px; margin-bottom: 12px;
+            background: var(--bg);
+            border: var(--bw) solid var(--ink); border-radius: 0;
+            padding: 4px 4px 4px 14px; align-items: center;
+            box-shadow: var(--hard);
+            transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+        }
+        .chat-input-area { margin-bottom: 0; margin-top: 6px; }
+        .input-area:focus-within, .chat-input-area:focus-within {
+            box-shadow: 6px 6px 0 var(--button);
+            transform: translate(-2px, -2px);
         }
         input[type="text"] {
             flex-grow: 1; min-width: 0; background: transparent; border: none;
-            color: var(--text); font-size: 16px; outline: none;
-            font-family: inherit; padding: 8px 0;
+            color: var(--text); font-size: 16px; font-weight: 500; line-height: 1.4; outline: none;
+            font-family: inherit; padding: 10px 0;
+            caret-color: var(--button);
         }
-        input[type="text"]::placeholder { color: var(--hint); }
+        input[type="text"]::placeholder { color: var(--hint); font-weight: 400; transition: opacity 0.2s ease; }
+        input[type="text"]:focus::placeholder { opacity: 0.5; }
+        .chat-input-area input { background: transparent; padding: 10px 0; border: none; flex-grow: 1; color: var(--text); font-size: 16px; }
+
         button.add-btn {
-            background: var(--button); color: var(--button-text); border: none; border-radius: 50%;
-            width: 38px; height: 38px; min-width: 38px; display: flex; align-items: center; justify-content: center;
+            background: var(--button); color: var(--button-text);
+            border: var(--bw) solid var(--ink); border-radius: 0;
+            width: 42px; height: 42px; min-width: 42px;
+            display: flex; align-items: center; justify-content: center;
             font-size: 16px; cursor: pointer; padding-left: 2px;
-            transition: transform 0.15s ease, opacity 0.2s ease;
+            box-shadow: var(--hard-sm);
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
         }
-        button.add-btn:active { transform: scale(0.9); }
+        button.add-btn:active { transform: translate(2px, 2px); box-shadow: var(--flat); }
 
         /* ТЕГИ */
-        .tags-container { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .tags-container { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
         .tag-btn {
-            background: var(--card); border: none;
-            color: var(--text); padding: 7px 14px; border-radius: 999px;
-            font-size: 13px; font-weight: 500; cursor: pointer;
-            transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+            background: var(--bg); color: var(--ink);
+            border: var(--bw) solid var(--ink); border-radius: 0;
+            padding: 7px 12px;
+            font-family: var(--mono); font-size: 12px; font-weight: 700;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: var(--hard-sm);
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background-color var(--dur) ease, color var(--dur) ease;
         }
-        .tag-btn:active { transform: scale(0.95); }
-        .tag-btn.active { background: var(--button); color: var(--button-text); }
+        .tag-btn:active { transform: translate(2px, 2px); box-shadow: var(--flat); }
+        .tag-btn.active {
+            background: var(--ink); color: var(--bg);
+            transform: translate(2px, 2px);
+            box-shadow: var(--flat);
+        }
 
         /* КАРТОЧКИ ЗАДАЧ */
         ul { list-style: none; }
         li {
-            background-color: var(--card);
-            padding: 14px 14px 14px 12px; margin-bottom: 10px;
-            border-radius: var(--radius);
-            display: flex; align-items: center; gap: 10px;
-            box-shadow: var(--shadow);
-            transition: transform 0.15s ease, opacity 0.25s ease;
+            background-color: var(--bg);
+            padding: 13px 10px 13px 12px; margin-bottom: 14px;
+            border: var(--bw) solid var(--ink); border-radius: 0;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: var(--hard);
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background-color var(--dur) ease;
         }
-        li:active { transform: scale(0.98); }
-        li.done { opacity: 0.5; }
-        .task-text { flex-grow: 1; font-size: 16px; line-height: 1.35; word-break: break-word; }
-        li.done .task-text { text-decoration: line-through; color: var(--hint); }
+        #taskList li:active { transform: translate(2px, 2px); box-shadow: var(--hard-sm); }
+        li.done { background-color: var(--card); box-shadow: var(--flat); }
+        .task-text {
+            flex-grow: 1; font-size: 16px; font-weight: 600; line-height: 1.35; letter-spacing: -0.1px;
+            word-break: break-word;
+            transition: color 0.3s ease;
+        }
+        li.done .task-text { text-decoration: line-through; color: var(--hint); font-weight: 500; }
+
+        #taskList > div {
+            margin-top: 24px !important;
+            padding: 28px 20px;
+            border: var(--bw) dashed var(--hint);
+            font-family: var(--mono);
+            font-size: 13px !important; font-weight: 600;
+            letter-spacing: 0.4px; text-transform: uppercase;
+            line-height: 1.5;
+        }
 
         .icon-btn {
             background: none; border: none; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            padding: 6px; border-radius: 50%;
-            transition: transform 0.15s ease, background-color 0.2s ease;
+            padding: 7px; border-radius: 0;
+            transition: transform var(--dur) var(--ease), background-color var(--dur) ease, box-shadow var(--dur) var(--ease), border-color var(--dur) ease;
         }
-        .icon-btn:active { transform: scale(0.85); background: var(--separator); }
-        .icon-btn svg { width: 22px; height: 22px; fill: var(--hint); transition: fill 0.2s; }
-        .icon-btn.check svg { fill: var(--button); }
+        .icon-btn:active { transform: scale(0.88); background: var(--separator); }
+        .icon-btn svg { width: 20px; height: 20px; fill: var(--ink); transition: fill var(--dur) ease, opacity var(--dur) ease; }
+        .icon-btn.check svg { fill: #000; }
+
+        /* Чекбокс слева */
+        li > .icon-btn:first-child {
+            width: 30px; height: 30px; min-width: 30px; padding: 0;
+            border: var(--bw) solid var(--ink);
+            background: var(--bg);
+            box-shadow: var(--hard-sm);
+        }
+        li > .icon-btn:first-child svg { width: 18px; height: 18px; opacity: 0; }
+        li > .icon-btn:first-child:active { transform: translate(2px, 2px); box-shadow: var(--flat); background: var(--card); }
+        li > .icon-btn:first-child.check {
+            background: var(--green);
+            transform: translate(2px, 2px);
+            box-shadow: var(--flat);
+        }
+        li > .icon-btn:first-child.check svg { opacity: 1; fill: #000; }
+        li > .icon-btn:first-child.check:active { background: var(--green); transform: translate(2px, 2px); }
+
+        /* Удаление справа */
+        li > .icon-btn:last-child {
+            width: 34px; height: 34px; min-width: 34px; padding: 0;
+            border: var(--bw) solid transparent;
+        }
+        li > .icon-btn:last-child svg { opacity: 0.55; }
+        li > .icon-btn:last-child:active { background: var(--red); border-color: var(--ink); transform: none; }
+        li > .icon-btn:last-child:active svg { fill: #000; opacity: 1; }
 
         /* ЧАТ */
         #chatView { display: none; flex-direction: column; height: 100%; min-height: 0; }
         .chat-messages {
             flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column;
-            gap: 6px; padding: 4px 0 10px; min-height: 0;
+            gap: 14px; padding: 4px 6px 16px 2px; min-height: 0;
+            scrollbar-width: none;
         }
+        .chat-messages::-webkit-scrollbar { display: none; }
         .msg-bubble {
-            padding: 9px 14px; border-radius: 18px; max-width: 82%;
-            font-size: 16px; line-height: 1.35; word-break: break-word; white-space: pre-wrap;
-            animation: bubbleIn 0.2s ease;
+            padding: 10px 14px; max-width: 84%;
+            border: var(--bw) solid var(--ink); border-radius: 0;
+            box-shadow: 3px 3px 0 var(--ink);
+            font-size: 16px; font-weight: 500; line-height: 1.4;
+            word-break: break-word; white-space: pre-wrap;
+            animation: bubbleIn 0.22s var(--ease) backwards;
         }
         @keyframes bubbleIn {
-            from { opacity: 0; transform: translateY(6px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .msg-user { background: var(--button); color: var(--button-text); align-self: flex-end; border-bottom-right-radius: 5px; }
-        .msg-ai { background: var(--card); color: var(--text); align-self: flex-start; border-bottom-left-radius: 5px; }
-
-        .chat-input-area {
-            display: flex; gap: 8px; margin-top: 6px; padding: 5px 5px 5px 18px;
-            background: var(--card); border-radius: 999px; align-items: center;
-            box-shadow: var(--shadow);
-            transition: box-shadow 0.2s ease;
-        }
-        .chat-input-area:focus-within {
-            box-shadow: 0 0 0 2px color-mix(in srgb, var(--button) 55%, transparent);
-        }
-        .chat-input-area input {
-            background: transparent; padding: 8px 0; border: none; flex-grow: 1;
-            color: var(--text); font-size: 16px;
-        }
+        .msg-user { background: var(--button); color: var(--button-text); align-self: flex-end; }
+        .msg-ai { background: var(--bg); color: var(--text); align-self: flex-start; border-left: 6px solid var(--gold); }
 
         /* ЭКРАН ПРИВЕТСТВИЯ */
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--bg);
+            background-image: radial-gradient(color-mix(in srgb, var(--text) 16%, transparent) 1px, transparent 1px);
+            background-size: 16px 16px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 28px; z-index: 1000;
+            text-align: center; padding: 48px 24px; z-index: 1000;
+            animation: splashIn 0.35s ease backwards;
         }
-        #splash h2 { font-size: 30px; font-weight: 800; margin-bottom: 16px; color: var(--text); letter-spacing: 1px; }
-        #splash .main-desc { font-size: 17px; color: var(--hint); margin-bottom: 24px; line-height: 1.5; }
-        #splash .phrase { font-size: 15px; color: var(--gold); font-style: italic; margin-bottom: 40px; min-height: 20px; }
+        #splash::before, #splash::after {
+            content: ""; position: absolute; left: 0; right: 0; height: 22px;
+            background: repeating-linear-gradient(-45deg, var(--gold) 0 14px, var(--ink) 14px 28px);
+        }
+        #splash::before { top: 0; border-bottom: 3px solid var(--ink); }
+        #splash::after { bottom: 0; border-top: 3px solid var(--ink); }
+        @keyframes splashIn { from { opacity: 0; } to { opacity: 1; } }
+        #splash h2 {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: clamp(30px, 11vw, 44px); font-weight: 800; line-height: 1.05; letter-spacing: -1px;
+            text-transform: uppercase;
+            color: #000; background: var(--gold);
+            padding: 8px 16px; margin-bottom: 32px;
+            border: 3px solid var(--ink);
+            box-shadow: 6px 6px 0 var(--ink);
+            transform: rotate(-2deg);
+        }
+        #splash .main-desc { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 28px; line-height: 1.6; }
+        #splash .main-desc::first-line {
+            font-family: var(--mono); font-size: 20px; font-weight: 800; color: var(--button);
+            text-transform: uppercase;
+        }
+        #splash .phrase { font-size: 15px; color: var(--gold); font-style: italic; margin-bottom: 36px; min-height: 20px; line-height: 1.5; }
         #splash button {
-            background-color: var(--button); color: var(--button-text); border: none;
-            padding: 15px 44px; font-size: 17px; font-weight: 600; border-radius: 999px; cursor: pointer;
-            box-shadow: 0 4px 14px color-mix(in srgb, var(--button) 40%, transparent);
-            transition: transform 0.15s ease;
+            background-color: var(--button); color: var(--button-text);
+            border: 3px solid var(--ink); border-radius: 0;
+            padding: 16px 40px;
+            font-family: var(--mono); font-size: 17px; font-weight: 800; letter-spacing: 1.5px;
+            cursor: pointer;
+            box-shadow: 6px 6px 0 var(--ink);
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
         }
-        #splash button:active { transform: scale(0.95); }
+        #splash button:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--ink); }
 
         /* ПЛАВАЮЩАЯ КНОПКА */
         .fab-btn {
             position: fixed; bottom: calc(20px + var(--safe-bottom)); right: 20px;
-            width: 58px; height: 58px; border-radius: 50%;
+            width: 60px; height: 60px; border-radius: 0;
             background: var(--button); color: var(--button-text);
-            font-size: 30px; font-weight: 300; line-height: 1; border: none;
-            box-shadow: var(--shadow-strong);
+            font-family: var(--mono); font-size: 34px; font-weight: 700; line-height: 1;
+            border: 3px solid var(--ink);
+            box-shadow: 5px 5px 0 var(--ink);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; z-index: 100;
-            transition: transform 0.15s ease;
+            animation: fabIn 0.28s var(--ease) backwards;
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
         }
-        .fab-btn:active { transform: scale(0.92); }
+        @keyframes fabIn {
+            from { opacity: 0; transform: scale(0.6) rotate(-12deg); }
+            to { opacity: 1; transform: scale(1) rotate(0); }
+        }
+        .fab-btn:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--ink); }
 
         /* ПАНЕЛЬ ДОБАВЛЕНИЯ */
         .add-panel-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-            z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+            z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
         }
         .add-panel-overlay.active { opacity: 1; pointer-events: auto; }
         .add-panel {
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: var(--bg);
-            border-top-left-radius: 24px; border-top-right-radius: 24px;
-            padding: 12px 16px calc(20px + var(--safe-bottom));
+            border-top: 3px solid var(--ink); border-radius: 0;
+            padding: 0 16px calc(22px + var(--safe-bottom));
             transform: translateY(100%);
-            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.1);
-            box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+            transition: transform 0.35s var(--ease);
         }
         .add-panel::before {
-            content: ""; display: block; width: 36px; height: 4px; border-radius: 2px;
-            background: var(--separator); margin: 0 auto 14px;
+            content: ""; display: block; height: 14px; margin: 0 -16px 18px;
+            background: repeating-linear-gradient(-45deg, var(--gold) 0 10px, var(--ink) 10px 20px);
+            border-bottom: 3px solid var(--ink);
         }
         .add-panel-overlay.active .add-panel { transform: translateY(0); }
-        .add-panel .input-area { background: var(--card); }
-        .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .panel-title { font-weight: 700; font-size: 17px; }
+        .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .panel-title {
+            font-family: var(--mono); font-weight: 800; font-size: 16px;
+            letter-spacing: 0.6px; text-transform: uppercase;
+        }
         .panel-close {
-            background: var(--card); border: none; color: var(--hint); cursor: pointer;
-            width: 30px; height: 30px; border-radius: 50%; font-size: 14px;
+            background: var(--bg); border: var(--bw) solid var(--ink); border-radius: 0; color: var(--ink); cursor: pointer;
+            width: 34px; height: 34px; font-size: 14px; font-weight: 700;
             display: flex; align-items: center; justify-content: center;
-            transition: transform 0.15s ease;
+            box-shadow: var(--hard-sm);
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
         }
-        .panel-close:active { transform: scale(0.9); }
+        .panel-close:active { transform: translate(2px, 2px); box-shadow: var(--flat); }
 
-        /* КАЛЕНДАРЬ / ЗАЛ СЛАВЫ */
+        /* КАЛЕНДАРЬ */
         #calendarView .month-block {
-            background: var(--card); border-radius: var(--radius);
-            padding: 16px; box-shadow: var(--shadow);
+            background: var(--bg);
+            border: var(--bw) solid var(--ink); border-radius: 0;
+            padding: 16px; box-shadow: var(--hard);
         }
-        .cal-day { transition: transform 0.15s ease; background: var(--bg) !important; }
-                .cal-day.past { opacity: 0.3; pointer-events: none; }
-        .cal-day:active { transform: scale(0.92); }
-        .hall-title { font-size: 16px; }
+        .month-title {
+            margin: -16px -16px 18px !important;
+            padding: 12px !important;
+            background: var(--ink);
+            color: var(--bg) !important;
+            font-family: var(--mono);
+            font-size: 15px !important; font-weight: 800 !important;
+            letter-spacing: 1.5px; text-transform: uppercase;
+        }
+        .calendar-grid { gap: 8px 6px !important; }
+        .calendar-grid > div:not(.cal-day) {
+            font-family: var(--mono);
+            font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase;
+            color: var(--ink) !important;
+        }
+        .cal-day {
+            background: var(--bg) !important;
+            color: var(--ink);
+            border: var(--bw) solid var(--ink);
+            border-radius: 0 !important;
+            padding: 11px 0 !important;
+            font-family: var(--mono);
+            font-size: 14px !important; font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            box-shadow: var(--hard-sm);
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background-color var(--dur) ease;
+        }
+        .cal-day:active { transform: translate(2px, 2px); box-shadow: var(--flat); background: var(--gold) !important; }
+        .cal-day.past {
+            opacity: 0.35; pointer-events: none; box-shadow: none;
+            background: var(--card) !important;
+            border-style: dashed; border-color: var(--hint);
+        }
+
+        /* ЗАЛ СЛАВЫ */
+        .hall-title {
+            display: block;
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 800 !important;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            padding: 10px 14px;
+            margin-bottom: 16px !important;
+            background: var(--bg);
+            border: var(--bw) solid currentColor;
+            box-shadow: 3px 3px 0 currentColor;
+        }
+        .hall-section li {
+            background: var(--bg) !important;
+            border: var(--bw) solid var(--ink) !important;
+            border-radius: 0 !important;
+            padding: 12px 14px !important;
+            margin-bottom: 12px !important;
+            box-shadow: var(--hard-sm);
+            font-size: 15px; font-weight: 600; line-height: 1.4;
+        }
+        #hallDoneList li { border-left: 8px solid var(--green) !important; }
+        #hallFailList li { border-left: 8px solid var(--red) !important; }
+        #hallDoneList > div, #hallFailList > div {
+            padding: 14px;
+            border: var(--bw) dashed currentColor;
+            font-family: var(--mono);
+            font-size: 13px !important; font-weight: 600;
+            line-height: 1.5;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body>
