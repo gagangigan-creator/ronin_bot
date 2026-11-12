@@ -3,42 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#08090c">
     <title>Мой путь</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: var(--tg-theme-bg-color, #ffffff);
-            --card: var(--tg-theme-secondary-bg-color, #f1f1f4);
-            --text: var(--tg-theme-text-color, #000000);
-            --hint: var(--tg-theme-hint-color, #8e8e93);
-            --link: var(--tg-theme-link-color, #2481cc);
-            --button: var(--tg-theme-button-color, #2481cc);
-            --button-text: var(--tg-theme-button-text-color, #ffffff);
-            --separator: color-mix(in srgb, var(--tg-theme-hint-color, #8e8e93) 25%, transparent);
+            color-scheme: dark;
 
-            /* Акценты статусов */
-            --green: #34c759;
-            --gold: #ff9f0a;
-            --red: #ff3b30;
+            /* Палитра: графит + шампань */
+            --bg: #08090c;
+            --card: #12151b;
+            --card-2: #181c24;
+            --card-3: #1f242e;
+            --line: rgba(255,255,255,0.07);
+            --line-2: rgba(255,255,255,0.13);
+            --text: #eceef2;
+            --hint: #9097a5;
+            --faint: #5d6472;
 
-            /* Нео-брутализм: контур и жёсткие тени цвета текста темы */
-            --ink: var(--text);
-            --bw: 2px;
-            --hard: 4px 4px 0 var(--ink);
-            --hard-sm: 2px 2px 0 var(--ink);
-            --flat: 0 0 0 var(--ink);
-            --mono: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, "Courier New", monospace;
+            --gold: #d9ad5b;
+            --gold-hi: #f1d390;
+            --gold-lo: #ad8039;
+            --gold-ink: #1a1308;
+            --gold-grad: linear-gradient(135deg, var(--gold-hi), var(--gold) 55%, var(--gold-lo));
 
-            --ease: cubic-bezier(0.2, 0.9, 0.3, 1);
-            --dur: 0.18s;
+            /* Статусы */
+            --green: #30d158;
+            --red: #ff453a;
+
+            --r-lg: 20px;
+            --r-md: 16px;
+            --shadow-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 10px 28px -12px rgba(0,0,0,0.7);
+
+            --ease: cubic-bezier(0.22, 0.8, 0.3, 1);
+            --dur: 0.22s;
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; }
+        html, body { height: 100%; background: var(--bg); }
         body {
-            background-color: var(--bg);
-            background-image: radial-gradient(color-mix(in srgb, var(--text) 16%, transparent) 1px, transparent 1px);
-            background-size: 16px 16px;
+            background-image: radial-gradient(110% 40% at 50% -8%, rgba(217,173,91,0.10), transparent 70%);
+            background-repeat: no-repeat;
             color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             font-size: 16px;
@@ -49,69 +55,68 @@
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
             -webkit-text-size-adjust: 100%;
+            text-rendering: optimizeLegibility;
         }
         button { font-family: inherit; }
 
         /* ШАПКА */
         .header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 18px 16px 14px;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            padding: 18px 20px 16px;
         }
-        h1 {
-            display: flex; align-items: center; gap: 10px;
-            font-family: var(--mono);
-            font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1;
-            text-transform: uppercase;
+        .title-block { min-width: 0; }
+        h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.1; }
+        .rank {
+            display: flex; align-items: center; gap: 9px; margin-top: 8px;
+            font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase;
+            color: var(--gold); white-space: nowrap;
         }
-        h1::before {
-            content: ""; width: 14px; height: 14px; flex-shrink: 0;
-            background: var(--button);
-            border: var(--bw) solid var(--ink);
-            box-shadow: var(--hard-sm);
+        .rank-bar {
+            width: 52px; height: 3px; border-radius: 2px; flex-shrink: 0;
+            background: rgba(255,255,255,0.09); overflow: hidden;
         }
+        .rank-bar i {
+            display: block; height: 100%; width: 0; border-radius: 2px;
+            background: var(--gold-grad);
+            transition: width 0.7s var(--ease);
+        }
+        .rank-num { color: var(--faint); font-variant-numeric: tabular-nums; letter-spacing: 0.6px; }
         #streak-display {
-            font-family: var(--mono);
-            font-size: 15px; font-weight: 800; color: #000;
-            background: var(--gold);
-            padding: 6px 12px;
-            border: var(--bw) solid var(--ink);
-            box-shadow: var(--hard-sm);
+            flex-shrink: 0; display: inline-flex; align-items: center;
+            font-size: 15px; font-weight: 600; color: var(--gold-hi);
+            background: var(--card); border: 1px solid var(--line-2);
+            padding: 9px 14px; border-radius: 14px;
+            box-shadow: var(--shadow-card);
             font-variant-numeric: tabular-nums;
         }
 
         /* ВКЛАДКИ */
         .tabs {
-            display: flex; gap: 10px; overflow-x: auto;
-            padding: 6px 16px 12px;
-            border-bottom: var(--bw) solid var(--ink);
-            scrollbar-width: none; flex-shrink: 0;
+            display: flex; gap: 8px; overflow-x: auto;
+            padding: 2px 16px 14px; scrollbar-width: none; flex-shrink: 0;
             -webkit-overflow-scrolling: touch;
         }
         .tabs::-webkit-scrollbar { display: none; }
         .tabs button {
-            flex: 0 0 auto;
-            background-color: var(--bg); color: var(--ink);
-            border: var(--bw) solid var(--ink); border-radius: 0;
-            padding: 9px 14px;
-            font-family: var(--mono); font-size: 12px; font-weight: 700;
-            letter-spacing: 0.6px; text-transform: uppercase;
+            flex: 0 0 auto; background: transparent; color: var(--hint);
+            border: 1px solid var(--line); border-radius: 999px;
+            padding: 9px 16px;
+            font-size: 14px; font-weight: 500; letter-spacing: -0.1px;
             cursor: pointer; white-space: nowrap;
-            box-shadow: var(--hard-sm);
             transition: transform var(--dur) var(--ease),
-                        box-shadow var(--dur) var(--ease),
-                        background-color var(--dur) ease,
-                        color var(--dur) ease;
+                        background-color 0.25s ease,
+                        color 0.25s ease,
+                        border-color 0.25s ease;
         }
-        .tabs button:active { transform: translate(2px, 2px); box-shadow: var(--flat); }
+        .tabs button:active { transform: scale(0.95); }
         .tabs button.active {
-            background-color: var(--ink); color: var(--bg);
-            transform: translate(2px, 2px);
-            box-shadow: var(--flat);
+            background: var(--text); color: var(--bg);
+            border-color: var(--text); font-weight: 600;
         }
 
         /* КОНТЕНТ */
         #content {
-            flex-grow: 1; overflow-y: auto; padding: 18px 16px calc(100px + var(--safe-bottom));
+            flex-grow: 1; overflow-y: auto; padding: 6px 16px calc(100px + var(--safe-bottom));
             display: flex; flex-direction: column; min-height: 0;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
@@ -119,328 +124,389 @@
         }
         #content::-webkit-scrollbar { display: none; }
         #content:has(#chatView[style*="display: flex"]) {
-            padding-bottom: calc(16px + var(--safe-bottom));
+            padding-bottom: calc(14px + var(--safe-bottom));
         }
 
         /* СМЕНА ВКЛАДОК */
         #standardView, #chatView, #calendarView, #hallView {
-            animation: viewIn 0.28s var(--ease) backwards;
+            animation: viewIn 0.32s var(--ease) backwards;
         }
         @keyframes viewIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ПОЛЯ ВВОДА */
-        .input-area, .chat-input-area {
-            display: flex; gap: 10px; margin-bottom: 12px;
-            background: var(--bg);
-            border: var(--bw) solid var(--ink); border-radius: 0;
-            padding: 4px 4px 4px 14px; align-items: center;
-            box-shadow: var(--hard);
-            transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+        /* ПРОГРЕСС ДНЯ */
+        .day-progress {
+            position: relative; flex-shrink: 0;
+            padding: 18px 18px 16px; margin-bottom: 18px;
+            background: linear-gradient(180deg, var(--card-2), var(--card));
+            border: 1px solid var(--line); border-radius: var(--r-lg);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
         }
-        .chat-input-area { margin-bottom: 0; margin-top: 6px; }
+        .day-progress::before {
+            content: ""; position: absolute; left: 18px; right: 18px; top: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(241,211,144,0.55), transparent);
+        }
+        .dp-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px; }
+        .dp-label {
+            font-size: 11px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase;
+            color: var(--hint); margin-bottom: 8px;
+        }
+        .dp-count {
+            font-size: 36px; font-weight: 700; letter-spacing: -1.2px; line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+        .dp-sep { margin: 0 3px; color: var(--faint); font-weight: 500; }
+        #dpTotal { color: var(--faint); font-weight: 600; }
+        .dp-pct {
+            font-size: 15px; font-weight: 600; color: var(--gold-hi);
+            font-variant-numeric: tabular-nums; padding-bottom: 3px;
+            transition: color 0.4s ease;
+        }
+        .dp-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.07); overflow: hidden; }
+        .dp-fill {
+            height: 100%; width: 0; border-radius: 3px;
+            background: var(--gold-grad);
+            box-shadow: 0 0 14px rgba(217,173,91,0.45);
+            transition: width 0.7s var(--ease);
+        }
+        .dp-note { margin-top: 13px; font-size: 13.5px; line-height: 1.45; color: var(--hint); }
+        .day-progress.complete::before { background: linear-gradient(90deg, transparent, rgba(48,209,88,0.6), transparent); }
+        .day-progress.complete .dp-fill { background: linear-gradient(90deg, #26b84a, var(--green)); box-shadow: 0 0 14px rgba(48,209,88,0.45); }
+        .day-progress.complete .dp-pct { color: var(--green); }
+
+        /* ПОЛЯ ВВОДА — КАПСУЛЫ */
+        .input-area, .chat-input-area {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--card-2);
+            border: 1px solid var(--line-2); border-radius: 999px;
+            padding: 5px 5px 5px 20px;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+        }
+        .input-area { margin-bottom: 12px; }
+        .chat-input-area { margin-top: 6px; }
         .input-area:focus-within, .chat-input-area:focus-within {
-            box-shadow: 6px 6px 0 var(--button);
-            transform: translate(-2px, -2px);
+            background: var(--card);
+            border-color: rgba(217,173,91,0.7);
+            box-shadow: 0 0 0 4px rgba(217,173,91,0.12);
         }
         input[type="text"] {
             flex-grow: 1; min-width: 0; background: transparent; border: none;
-            color: var(--text); font-size: 16px; font-weight: 500; line-height: 1.4; outline: none;
-            font-family: inherit; padding: 10px 0;
-            caret-color: var(--button);
+            color: var(--text); font-size: 16px; line-height: 1.4; outline: none;
+            font-family: inherit; padding: 11px 0;
+            caret-color: var(--gold);
         }
-        input[type="text"]::placeholder { color: var(--hint); font-weight: 400; transition: opacity 0.2s ease; }
-        input[type="text"]:focus::placeholder { opacity: 0.5; }
-        .chat-input-area input { background: transparent; padding: 10px 0; border: none; flex-grow: 1; color: var(--text); font-size: 16px; }
-
+        input[type="text"]::placeholder { color: var(--faint); transition: opacity 0.2s ease; }
+        input[type="text"]:focus::placeholder { opacity: 0.6; }
+        .chat-input-area input { background: transparent; padding: 11px 0; border: none; flex-grow: 1; color: var(--text); font-size: 16px; }
         button.add-btn {
-            background: var(--button); color: var(--button-text);
-            border: var(--bw) solid var(--ink); border-radius: 0;
-            width: 42px; height: 42px; min-width: 42px;
+            width: 40px; height: 40px; min-width: 40px; border-radius: 50%; border: none;
+            background: var(--gold-grad); color: var(--gold-ink);
             display: flex; align-items: center; justify-content: center;
-            font-size: 16px; cursor: pointer; padding-left: 2px;
-            box-shadow: var(--hard-sm);
-            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+            font-size: 15px; cursor: pointer; padding-left: 2px;
+            box-shadow: 0 4px 14px rgba(217,173,91,0.28);
+            transition: transform var(--dur) var(--ease), opacity var(--dur) ease;
         }
-        button.add-btn:active { transform: translate(2px, 2px); box-shadow: var(--flat); }
+        button.add-btn:active { transform: scale(0.88); opacity: 0.9; }
 
         /* ТЕГИ */
-        .tags-container { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .tags-container { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .tag-btn {
-            background: var(--bg); color: var(--ink);
-            border: var(--bw) solid var(--ink); border-radius: 0;
-            padding: 7px 12px;
-            font-family: var(--mono); font-size: 12px; font-weight: 700;
-            letter-spacing: 0.5px; text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: var(--hard-sm);
-            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background-color var(--dur) ease, color var(--dur) ease;
+            background: transparent; color: var(--hint);
+            border: 1px solid var(--line-2); border-radius: 999px;
+            padding: 8px 16px; font-size: 13.5px; font-weight: 500; cursor: pointer;
+            transition: transform var(--dur) var(--ease), background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
         }
-        .tag-btn:active { transform: translate(2px, 2px); box-shadow: var(--flat); }
+        .tag-btn:active { transform: scale(0.95); }
         .tag-btn.active {
-            background: var(--ink); color: var(--bg);
-            transform: translate(2px, 2px);
-            box-shadow: var(--flat);
+            background: rgba(217,173,91,0.14); color: var(--gold-hi);
+            border-color: rgba(217,173,91,0.6);
         }
 
         /* КАРТОЧКИ ЗАДАЧ */
         ul { list-style: none; }
-        li {
-            background-color: var(--bg);
-            padding: 13px 10px 13px 12px; margin-bottom: 14px;
-            border: var(--bw) solid var(--ink); border-radius: 0;
-            display: flex; align-items: center; gap: 12px;
-            box-shadow: var(--hard);
-            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background-color var(--dur) ease;
+        #taskList li {
+            position: relative;
+            display: flex; align-items: center; gap: 14px;
+            padding: 15px 10px 15px 14px; margin-bottom: 10px;
+            background: var(--card);
+            border: 1px solid var(--line); border-radius: var(--r-md);
+            box-shadow: var(--shadow-card);
+            transition: transform var(--dur) var(--ease), opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
         }
-        #taskList li:active { transform: translate(2px, 2px); box-shadow: var(--hard-sm); }
-        li.done { background-color: var(--card); box-shadow: var(--flat); }
+        #taskList li:active { transform: scale(0.985); }
+        #taskList li.done { opacity: 0.5; background: transparent; box-shadow: none; }
         .task-text {
-            flex-grow: 1; font-size: 16px; font-weight: 600; line-height: 1.35; letter-spacing: -0.1px;
+            flex-grow: 1; font-size: 16px; font-weight: 500; line-height: 1.4; letter-spacing: -0.15px;
             word-break: break-word;
             transition: color 0.3s ease;
         }
-        li.done .task-text { text-decoration: line-through; color: var(--hint); font-weight: 500; }
+        li.done .task-text { text-decoration: line-through; color: var(--faint); }
 
         #taskList > div {
-            margin-top: 24px !important;
-            padding: 28px 20px;
-            border: var(--bw) dashed var(--hint);
-            font-family: var(--mono);
-            font-size: 13px !important; font-weight: 600;
-            letter-spacing: 0.4px; text-transform: uppercase;
+            margin-top: 28px !important;
+            padding: 44px 24px;
+            border: 1px dashed var(--line-2);
+            border-radius: var(--r-lg);
+            font-size: 14.5px !important;
             line-height: 1.5;
         }
 
         .icon-btn {
+            position: relative;
             background: none; border: none; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            padding: 7px; border-radius: 0;
-            transition: transform var(--dur) var(--ease), background-color var(--dur) ease, box-shadow var(--dur) var(--ease), border-color var(--dur) ease;
+            padding: 0; border-radius: 50%;
+            transition: transform var(--dur) var(--ease), background-color var(--dur) ease, border-color var(--dur) ease;
         }
-        .icon-btn:active { transform: scale(0.88); background: var(--separator); }
-        .icon-btn svg { width: 20px; height: 20px; fill: var(--ink); transition: fill var(--dur) ease, opacity var(--dur) ease; }
-        .icon-btn.check svg { fill: #000; }
+        .icon-btn:active { transform: scale(0.88); }
+        .icon-btn svg { width: 18px; height: 18px; fill: var(--hint); transition: fill var(--dur) ease, opacity var(--dur) ease, transform 0.3s var(--ease); }
 
         /* Чекбокс слева */
-        li > .icon-btn:first-child {
-            width: 30px; height: 30px; min-width: 30px; padding: 0;
-            border: var(--bw) solid var(--ink);
-            background: var(--bg);
-            box-shadow: var(--hard-sm);
+        #taskList li > .icon-btn:first-child {
+            width: 26px; height: 26px; min-width: 26px;
+            border: 1.5px solid var(--line-2);
         }
-        li > .icon-btn:first-child svg { width: 18px; height: 18px; opacity: 0; }
-        li > .icon-btn:first-child:active { transform: translate(2px, 2px); box-shadow: var(--flat); background: var(--card); }
-        li > .icon-btn:first-child.check {
-            background: var(--green);
-            transform: translate(2px, 2px);
-            box-shadow: var(--flat);
-        }
-        li > .icon-btn:first-child.check svg { opacity: 1; fill: #000; }
-        li > .icon-btn:first-child.check:active { background: var(--green); transform: translate(2px, 2px); }
+        #taskList li > .icon-btn:first-child::after { content: ""; position: absolute; inset: -10px; }
+        #taskList li > .icon-btn:first-child svg { width: 15px; height: 15px; fill: #04170a; opacity: 0; transform: scale(0.4); }
+        #taskList li > .icon-btn:first-child.check { background: var(--green); border-color: var(--green); }
+        #taskList li > .icon-btn:first-child.check svg { opacity: 1; transform: scale(1); }
 
         /* Удаление справа */
-        li > .icon-btn:last-child {
-            width: 34px; height: 34px; min-width: 34px; padding: 0;
-            border: var(--bw) solid transparent;
+        #taskList li > .icon-btn:last-child { width: 34px; height: 34px; min-width: 34px; }
+        #taskList li > .icon-btn:last-child svg { fill: var(--faint); }
+        #taskList li > .icon-btn:last-child:active { background: rgba(255,69,58,0.14); }
+        #taskList li > .icon-btn:last-child:active svg { fill: var(--red); }
+
+        /* Анимация выполнения */
+        @keyframes doneRing {
+            0% { box-shadow: 0 0 0 0 rgba(48,209,88,0.5); }
+            100% { box-shadow: 0 0 0 16px rgba(48,209,88,0); }
         }
-        li > .icon-btn:last-child svg { opacity: 0.55; }
-        li > .icon-btn:last-child:active { background: var(--red); border-color: var(--ink); transform: none; }
-        li > .icon-btn:last-child:active svg { fill: #000; opacity: 1; }
+        @keyframes checkPop {
+            0% { transform: scale(0.5); }
+            55% { transform: scale(1.18); }
+            100% { transform: scale(1); }
+        }
+        #taskList li.just-done { animation: doneRing 0.7s ease-out; }
+        #taskList li.just-done > .icon-btn:first-child { animation: checkPop 0.45s var(--ease); }
 
         /* ЧАТ */
         #chatView { display: none; flex-direction: column; height: 100%; min-height: 0; }
         .chat-messages {
             flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column;
-            gap: 14px; padding: 4px 6px 16px 2px; min-height: 0;
+            gap: 10px; padding: 2px 0 14px; min-height: 0;
             scrollbar-width: none;
         }
         .chat-messages::-webkit-scrollbar { display: none; }
         .msg-bubble {
-            padding: 10px 14px; max-width: 84%;
-            border: var(--bw) solid var(--ink); border-radius: 0;
-            box-shadow: 3px 3px 0 var(--ink);
-            font-size: 16px; font-weight: 500; line-height: 1.4;
+            padding: 11px 16px; border-radius: 20px; max-width: 84%;
+            font-size: 15.5px; line-height: 1.45; letter-spacing: -0.1px;
             word-break: break-word; white-space: pre-wrap;
-            animation: bubbleIn 0.22s var(--ease) backwards;
+            animation: bubbleIn 0.28s var(--ease);
         }
         @keyframes bubbleIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(8px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .msg-user { background: var(--button); color: var(--button-text); align-self: flex-end; }
-        .msg-ai { background: var(--bg); color: var(--text); align-self: flex-start; border-left: 6px solid var(--gold); }
+        .msg-user {
+            background: var(--text); color: var(--bg); font-weight: 500;
+            align-self: flex-end; border-bottom-right-radius: 6px;
+        }
+        .msg-ai {
+            background: var(--card); color: var(--text);
+            border: 1px solid var(--line);
+            align-self: flex-start; border-bottom-left-radius: 6px;
+        }
 
         /* ЭКРАН ПРИВЕТСТВИЯ */
         #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--bg);
-            background-image: radial-gradient(color-mix(in srgb, var(--text) 16%, transparent) 1px, transparent 1px);
-            background-size: 16px 16px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 48px 24px; z-index: 1000;
-            animation: splashIn 0.35s ease backwards;
+            text-align: center; padding: 32px 28px; z-index: 1000;
+            overflow: hidden;
+            animation: fadeIn 0.4s ease backwards;
         }
-        #splash::before, #splash::after {
-            content: ""; position: absolute; left: 0; right: 0; height: 22px;
-            background: repeating-linear-gradient(-45deg, var(--gold) 0 14px, var(--ink) 14px 28px);
+        #splash::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 40px 40px;
+            -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 38%, #000 10%, transparent 75%);
+            mask-image: radial-gradient(ellipse 80% 55% at 50% 38%, #000 10%, transparent 75%);
+            pointer-events: none;
         }
-        #splash::before { top: 0; border-bottom: 3px solid var(--ink); }
-        #splash::after { bottom: 0; border-top: 3px solid var(--ink); }
-        @keyframes splashIn { from { opacity: 0; } to { opacity: 1; } }
+        #splash::after {
+            content: ""; position: absolute; left: 50%; top: -22%;
+            width: 140%; height: 60%; transform: translateX(-50%);
+            background: radial-gradient(closest-side, rgba(217,173,91,0.16), transparent);
+            pointer-events: none;
+        }
+        #splash > * { position: relative; z-index: 1; animation: rise 0.7s var(--ease) backwards; }
+        #splash > :nth-child(1) { animation-delay: 0.05s; }
+        #splash > :nth-child(2) { animation-delay: 0.18s; }
+        #splash > :nth-child(3) { animation-delay: 0.3s; }
+        #splash > :nth-child(4) { animation-delay: 0.42s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         #splash h2 {
-            display: inline-block;
-            font-family: var(--mono);
-            font-size: clamp(30px, 11vw, 44px); font-weight: 800; line-height: 1.05; letter-spacing: -1px;
-            text-transform: uppercase;
-            color: #000; background: var(--gold);
-            padding: 8px 16px; margin-bottom: 32px;
-            border: 3px solid var(--ink);
-            box-shadow: 6px 6px 0 var(--ink);
-            transform: rotate(-2deg);
+            font-size: 34px; font-weight: 800; line-height: 1.1;
+            letter-spacing: 6px; padding-left: 6px; color: var(--text);
+            margin-bottom: 26px;
         }
-        #splash .main-desc { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 28px; line-height: 1.6; }
-        #splash .main-desc::first-line {
-            font-family: var(--mono); font-size: 20px; font-weight: 800; color: var(--button);
-            text-transform: uppercase;
+        #splash h2::before {
+            content: "ШТАБ";
+            display: block; margin-bottom: 18px; padding-left: 4px;
+            font-size: 11px; font-weight: 600; letter-spacing: 4px; color: var(--gold);
         }
-        #splash .phrase { font-size: 15px; color: var(--gold); font-style: italic; margin-bottom: 36px; min-height: 20px; line-height: 1.5; }
+        #splash h2::after {
+            content: ""; display: block;
+            width: 40px; height: 2px; border-radius: 1px;
+            background: var(--gold-grad);
+            margin: 24px auto 0 auto; transform: translateX(-3px);
+        }
+        #splash .main-desc { font-size: 18px; color: var(--hint); margin-bottom: 24px; line-height: 1.8; }
+        #splash .main-desc::first-line { color: var(--text); font-weight: 600; }
+        #splash .phrase {
+            max-width: 300px; font-size: 14px; color: var(--gold); font-style: italic;
+            margin: 0 auto 38px; min-height: 20px; line-height: 1.55;
+        }
         #splash button {
-            background-color: var(--button); color: var(--button-text);
-            border: 3px solid var(--ink); border-radius: 0;
-            padding: 16px 40px;
-            font-family: var(--mono); font-size: 17px; font-weight: 800; letter-spacing: 1.5px;
-            cursor: pointer;
-            box-shadow: 6px 6px 0 var(--ink);
-            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+            min-width: 240px; padding: 17px 36px;
+            background: var(--gold-grad); color: var(--gold-ink); border: none; border-radius: 16px;
+            font-size: 14px; font-weight: 700; letter-spacing: 2.5px; cursor: pointer;
+            box-shadow: 0 14px 34px -8px rgba(217,173,91,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) ease;
         }
-        #splash button:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--ink); }
+        #splash button:active { transform: scale(0.96); box-shadow: 0 6px 16px -6px rgba(217,173,91,0.5), inset 0 1px 0 rgba(255,255,255,0.4); }
 
         /* ПЛАВАЮЩАЯ КНОПКА */
         .fab-btn {
-            position: fixed; bottom: calc(20px + var(--safe-bottom)); right: 20px;
-            width: 60px; height: 60px; border-radius: 0;
-            background: var(--button); color: var(--button-text);
-            font-family: var(--mono); font-size: 34px; font-weight: 700; line-height: 1;
-            border: 3px solid var(--ink);
-            box-shadow: 5px 5px 0 var(--ink);
+            position: fixed; bottom: calc(22px + var(--safe-bottom)); right: 20px;
+            width: 58px; height: 58px; border-radius: 20px;
+            background: var(--gold-grad); color: var(--gold-ink);
+            font-size: 30px; font-weight: 400; line-height: 1; border: none;
+            box-shadow: 0 14px 30px -8px rgba(217,173,91,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
             display: flex; align-items: center; justify-content: center;
+            padding-bottom: 2px;
             cursor: pointer; z-index: 100;
-            animation: fabIn 0.28s var(--ease) backwards;
-            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+            animation: fabIn 0.35s var(--ease) backwards;
+            transition: transform var(--dur) var(--ease), box-shadow var(--dur) ease;
         }
         @keyframes fabIn {
-            from { opacity: 0; transform: scale(0.6) rotate(-12deg); }
-            to { opacity: 1; transform: scale(1) rotate(0); }
+            from { opacity: 0; transform: scale(0.7); }
+            to { opacity: 1; transform: scale(1); }
         }
-        .fab-btn:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--ink); }
+        .fab-btn:active { transform: scale(0.9); box-shadow: 0 5px 14px -4px rgba(217,173,91,0.5), inset 0 1px 0 rgba(255,255,255,0.4); }
 
         /* ПАНЕЛЬ ДОБАВЛЕНИЯ */
         .add-panel-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-            z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+            background: rgba(0,0,0,0.62); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
         .add-panel-overlay.active { opacity: 1; pointer-events: auto; }
         .add-panel {
             position: absolute; bottom: 0; left: 0; width: 100%;
-            background: var(--bg);
-            border-top: 3px solid var(--ink); border-radius: 0;
-            padding: 0 16px calc(22px + var(--safe-bottom));
+            background: linear-gradient(180deg, #14171e, #0f1116);
+            border-top: 1px solid var(--line-2);
+            border-top-left-radius: 28px; border-top-right-radius: 28px;
+            padding: 12px 18px calc(24px + var(--safe-bottom));
             transform: translateY(100%);
-            transition: transform 0.35s var(--ease);
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.02);
+            box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
         }
         .add-panel::before {
-            content: ""; display: block; height: 14px; margin: 0 -16px 18px;
-            background: repeating-linear-gradient(-45deg, var(--gold) 0 10px, var(--ink) 10px 20px);
-            border-bottom: 3px solid var(--ink);
+            content: ""; display: block; width: 40px; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.16); margin: 0 auto 18px;
         }
         .add-panel-overlay.active .add-panel { transform: translateY(0); }
         .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .panel-title {
-            font-family: var(--mono); font-weight: 800; font-size: 16px;
-            letter-spacing: 0.6px; text-transform: uppercase;
-        }
+        .panel-title { font-weight: 700; font-size: 18px; letter-spacing: -0.3px; }
         .panel-close {
-            background: var(--bg); border: var(--bw) solid var(--ink); border-radius: 0; color: var(--ink); cursor: pointer;
-            width: 34px; height: 34px; font-size: 14px; font-weight: 700;
+            background: var(--card-3); border: none; color: var(--hint); cursor: pointer;
+            width: 32px; height: 32px; border-radius: 50%; font-size: 13px;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: var(--hard-sm);
-            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+            transition: transform var(--dur) var(--ease), background-color var(--dur) ease;
         }
-        .panel-close:active { transform: translate(2px, 2px); box-shadow: var(--flat); }
+        .panel-close:active { transform: scale(0.88); }
 
         /* КАЛЕНДАРЬ */
         #calendarView .month-block {
-            background: var(--bg);
-            border: var(--bw) solid var(--ink); border-radius: 0;
-            padding: 16px; box-shadow: var(--hard);
+            background: var(--card);
+            border: 1px solid var(--line); border-radius: 24px;
+            padding: 20px 14px 18px; box-shadow: var(--shadow-card);
         }
         .month-title {
-            margin: -16px -16px 18px !important;
-            padding: 12px !important;
-            background: var(--ink);
-            color: var(--bg) !important;
-            font-family: var(--mono);
-            font-size: 15px !important; font-weight: 800 !important;
-            letter-spacing: 1.5px; text-transform: uppercase;
+            font-size: 18px !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.4px;
+            margin-bottom: 20px !important;
+            color: var(--text) !important;
         }
-        .calendar-grid { gap: 8px 6px !important; }
+        .calendar-grid { gap: 6px !important; }
         .calendar-grid > div:not(.cal-day) {
-            font-family: var(--mono);
-            font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase;
-            color: var(--ink) !important;
+            font-size: 11px !important; font-weight: 600;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            color: var(--faint) !important;
+            padding-bottom: 4px !important;
         }
         .cal-day {
-            background: var(--bg) !important;
-            color: var(--ink);
-            border: var(--bw) solid var(--ink);
-            border-radius: 0 !important;
-            padding: 11px 0 !important;
-            font-family: var(--mono);
-            font-size: 14px !important; font-weight: 700;
+            position: relative;
+            background: var(--card-2) !important;
+            color: var(--text);
+            border: 1px solid transparent;
+            border-radius: 12px !important;
+            padding: 12px 0 !important;
+            font-size: 15px !important; font-weight: 500;
             font-variant-numeric: tabular-nums;
-            box-shadow: var(--hard-sm);
-            transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background-color var(--dur) ease;
+            transition: transform var(--dur) var(--ease), background-color var(--dur) ease, border-color var(--dur) ease;
         }
-        .cal-day:active { transform: translate(2px, 2px); box-shadow: var(--flat); background: var(--gold) !important; }
-        .cal-day.past {
-            opacity: 0.35; pointer-events: none; box-shadow: none;
-            background: var(--card) !important;
-            border-style: dashed; border-color: var(--hint);
+        .cal-day:active { transform: scale(0.92); background: var(--card-3) !important; }
+        .cal-day.past { opacity: 0.32; pointer-events: none; background: transparent !important; }
+        .cal-day.today {
+            background: rgba(217,173,91,0.14) !important;
+            border-color: rgba(217,173,91,0.65);
+            color: var(--gold-hi); font-weight: 700;
         }
+        .cal-day.has-tasks::after, .cal-day.all-done::after {
+            content: ""; position: absolute; left: 50%; bottom: 5px;
+            width: 4px; height: 4px; margin-left: -2px; border-radius: 50%;
+            background: var(--gold);
+        }
+        .cal-day.all-done::after { background: var(--green); }
 
         /* ЗАЛ СЛАВЫ */
         .hall-title {
-            display: block;
-            font-family: var(--mono);
-            font-size: 14px;
-            font-weight: 800 !important;
-            letter-spacing: 0.8px; text-transform: uppercase;
-            padding: 10px 14px;
-            margin-bottom: 16px !important;
-            background: var(--bg);
-            border: var(--bw) solid currentColor;
-            box-shadow: 3px 3px 0 currentColor;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 12px;
+            letter-spacing: 1.4px; text-transform: uppercase;
+            line-height: 1.3;
+            margin-bottom: 14px !important;
         }
+        .hall-title::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: 0.22; }
         .hall-section li {
-            background: var(--bg) !important;
-            border: var(--bw) solid var(--ink) !important;
-            border-radius: 0 !important;
-            padding: 12px 14px !important;
-            margin-bottom: 12px !important;
-            box-shadow: var(--hard-sm);
-            font-size: 15px; font-weight: 600; line-height: 1.4;
+            background: var(--card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+            padding: 14px 16px !important;
+            margin-bottom: 8px !important;
+            font-size: 15px; line-height: 1.4;
         }
-        #hallDoneList li { border-left: 8px solid var(--green) !important; }
-        #hallFailList li { border-left: 8px solid var(--red) !important; }
+        #hallDoneList li { border-left: 3px solid var(--green) !important; opacity: 0.85 !important; }
+        #hallFailList li { border-left: 3px solid var(--red) !important; }
         #hallDoneList > div, #hallFailList > div {
-            padding: 14px;
-            border: var(--bw) dashed currentColor;
-            font-family: var(--mono);
-            font-size: 13px !important; font-weight: 600;
+            padding: 16px;
+            border: 1px dashed var(--line-2);
+            border-radius: 14px;
+            font-size: 14px !important;
             line-height: 1.5;
         }
 
@@ -464,7 +530,14 @@
 
     <!-- ШАПКА -->
     <div class="header">
-        <h1>Мой путь</h1>
+        <div class="title-block">
+            <h1>Мой путь</h1>
+            <div class="rank" id="rankLabel">
+                <span class="rank-name" id="rankName">Рядовой</span>
+                <span class="rank-bar"><i id="rankFill"></i></span>
+                <span class="rank-num" id="rankNum">0/5</span>
+            </div>
+        </div>
         <div id="streak-display">🔥 0</div>
     </div>
 
@@ -481,7 +554,19 @@
     <div id="content">
         <!-- ВКЛАДКА СЕГОДНЯ/ЗАВТРА -->
         <div id="standardView" style="display: flex; flex-direction: column; height: 100%;">
-            
+
+            <div class="day-progress" id="dayProgress">
+                <div class="dp-top">
+                    <div>
+                        <div class="dp-label" id="dpLabel">План на сегодня</div>
+                        <div class="dp-count"><span id="dpDone">0</span><span class="dp-sep">/</span><span id="dpTotal">0</span></div>
+                    </div>
+                    <div class="dp-pct" id="dpPct">0%</div>
+                </div>
+                <div class="dp-bar"><div class="dp-fill" id="dpFill"></div></div>
+                <div class="dp-note" id="dpNote"></div>
+            </div>
+
             <ul id="taskList"></ul>
         </div>
 
@@ -856,6 +941,160 @@
                 });
             }
         }
+
+        // ===== ДОПОЛНЕНИЯ ИНТЕРФЕЙСА (код функций выше не изменён) =====
+        (function enhance() {
+            // Тёмная оболочка Telegram под палитру приложения
+            try {
+                if (tg) {
+                    if (tg.setHeaderColor) tg.setHeaderColor('#08090c');
+                    if (tg.setBackgroundColor) tg.setBackgroundColor('#08090c');
+                    if (tg.setBottomBarColor) tg.setBottomBarColor('#08090c');
+                }
+            } catch (e) {}
+
+            // Фраза на экране приветствия
+            const PHRASES = [
+                "Дисциплина — это когда делаешь, даже если не хочется.",
+                "Не жди настроения. Начни — оно подтянется.",
+                "Один закрытый пункт лучше десяти планов.",
+                "Сегодняшний ты строит завтрашнего. Не подведи его.",
+                "Слабость любит «потом». Сильные делают сейчас.",
+                "Маленький шаг каждый день сильнее рывка раз в месяц."
+            ];
+            const phraseEl = document.getElementById('splashPhrase');
+            if (phraseEl) phraseEl.textContent = PHRASES[Math.floor(Math.random() * PHRASES.length)];
+
+            // Звания по количеству выполненных задач
+            const RANKS = [
+                { name: 'Рядовой', min: 0 },
+                { name: 'Ефрейтор', min: 5 },
+                { name: 'Мл. сержант', min: 15 },
+                { name: 'Сержант', min: 30 },
+                { name: 'Ст. сержант', min: 50 },
+                { name: 'Старшина', min: 80 },
+                { name: 'Лейтенант', min: 120 },
+                { name: 'Капитан', min: 170 },
+                { name: 'Майор', min: 240 },
+                { name: 'Полковник', min: 330 },
+                { name: 'Генерал', min: 450 }
+            ];
+
+            function updateRank() {
+                const nameEl = document.getElementById('rankName');
+                const fillEl = document.getElementById('rankFill');
+                const numEl = document.getElementById('rankNum');
+                if (!nameEl || !fillEl || !numEl) return;
+                const total = tasks.filter(t => t.done).length;
+                let idx = 0;
+                for (let i = 0; i < RANKS.length; i++) {
+                    if (total >= RANKS[i].min) idx = i;
+                }
+                const cur = RANKS[idx];
+                const next = RANKS[idx + 1];
+                nameEl.textContent = cur.name;
+                if (next) {
+                    const span = next.min - cur.min;
+                    const got = total - cur.min;
+                    fillEl.style.width = Math.round(got / span * 100) + '%';
+                    numEl.textContent = got + '/' + span;
+                } else {
+                    fillEl.style.width = '100%';
+                    numEl.textContent = 'MAX';
+                }
+            }
+
+            // Задачи текущей вкладки (та же логика дат, что и в renderTasks)
+            function tasksForCurrentTab() {
+                const today = new Date().toISOString().split('T')[0];
+                const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+                const target = currentTab === 'tomorrow' ? tomorrow : today;
+                return tasks.filter(t => t.date === target);
+            }
+
+            // Прогресс дня
+            function updateDayProgress() {
+                const box = document.getElementById('dayProgress');
+                if (!box) return;
+                const list = tasksForCurrentTab();
+                const total = list.length;
+                const done = list.filter(t => t.done).length;
+                const pct = total ? Math.round(done / total * 100) : 0;
+                const isTomorrow = currentTab === 'tomorrow';
+
+                document.getElementById('dpLabel').textContent = isTomorrow ? 'План на завтра' : 'План на сегодня';
+                document.getElementById('dpDone').textContent = done;
+                document.getElementById('dpTotal').textContent = total;
+                document.getElementById('dpPct').textContent = pct + '%';
+                document.getElementById('dpFill').style.width = pct + '%';
+                box.classList.toggle('complete', total > 0 && done === total);
+
+                let note;
+                if (isTomorrow) {
+                    note = total ? ('В плане: ' + total + '. Выполнять без скидок.') : 'Завтра начинается сегодня. Составь план.';
+                } else if (!total) {
+                    note = 'План пуст. Без плана нет результата.';
+                } else if (done === total) {
+                    note = 'День закрыт. Без скидок и без оправданий.';
+                } else if (done === 0) {
+                    note = 'Ни одной закрытой задачи. Начни с самой тяжёлой.';
+                } else {
+                    note = 'Осталось ' + (total - done) + '. Дожимай.';
+                }
+                document.getElementById('dpNote').textContent = note;
+            }
+
+            // Обёртки: оригинальные функции вызываются как есть
+            let pendingDoneId = null;
+
+            const _toggleTask = toggleTask;
+            toggleTask = function (id) {
+                const t = tasks.find(x => x.id === id);
+                pendingDoneId = (t && !t.done) ? id : null;
+                _toggleTask(id);
+                pendingDoneId = null;
+            };
+
+            const _renderTasks = renderTasks;
+            renderTasks = function () {
+                _renderTasks();
+                updateDayProgress();
+                updateRank();
+                updateStreak();
+                if (pendingDoneId !== null) {
+                    const idx = tasksForCurrentTab().findIndex(t => t.id === pendingDoneId);
+                    if (idx >= 0) {
+                        const li = document.getElementById('taskList').children[idx];
+                        if (li) li.classList.add('just-done');
+                    }
+                }
+            };
+
+            const _renderCalendar = renderCalendar;
+            renderCalendar = function () {
+                _renderCalendar();
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = now.getMonth();
+                document.querySelectorAll('#calendarMonths .cal-day').forEach((el, i) => {
+                    const d = i + 1;
+                    const ds = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+                    const dayTasks = tasks.filter(t => t.date === ds);
+                    if (d === now.getDate()) el.classList.add('today');
+                    if (dayTasks.length) el.classList.add(dayTasks.every(t => t.done) ? 'all-done' : 'has-tasks');
+                });
+            };
+
+            const _switchTab = switchTab;
+            switchTab = function (tab) {
+                _switchTab(tab);
+                try {
+                    if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+                    document.getElementById('tab-' + tab).scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                } catch (e) {}
+            };
+        })();
+
         init();
     </script>
 </body>
