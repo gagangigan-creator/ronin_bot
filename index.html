@@ -470,7 +470,19 @@
             transition: transform var(--dur) var(--ease), background-color var(--dur) ease, border-color var(--dur) ease;
         }
         .cal-day:active { transform: scale(0.92); background: var(--card-3) !important; }
-        .cal-day.past { opacity: 0.32; pointer-events: none; background: transparent !important; }
+        .cal-day.past {
+            opacity: 0.20 !important;
+            color: var(--hint) !important;
+            background: transparent !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            filter: grayscale(1);
+            pointer-events: none !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+        }
+        .cal-day.past::after { display: none !important; }
+        .cal-day[aria-disabled="true"] { user-select: none; }
         .cal-day.today {
             background: rgba(217,173,91,0.14) !important;
             border-color: rgba(217,173,91,0.65);
@@ -890,19 +902,46 @@
                                 const today = new Date();
                 today.setHours(0,0,0,0);
                 const thisDate = new Date(currentYear, currentMonth, i);
-                if (thisDate < today) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const isPastDay = thisDate < today;
+                const isToday = thisDate.getTime() === today.getTime();
+
+                if (isPastDay) {
                     dayDiv.classList.add('past');
+                    dayDiv.setAttribute('aria-disabled', 'true');
+                    dayDiv.setAttribute('title', 'Прошедший день');
+                    dayDiv.tabIndex = -1;
+                    dayDiv.style.pointerEvents = 'none';
+                } else {
+                    dayDiv.setAttribute('role', 'button');
+                    dayDiv.setAttribute('tabindex', '0');
+                    dayDiv.setAttribute('aria-label', `${i} ${monthNames[currentMonth]}`);
+                    dayDiv.onclick = () => selectCalendarDay(dateStr);
+                    dayDiv.onkeydown = (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            selectCalendarDay(dateStr);
+                        }
+                    };
                 }
 
-                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                
-                dayDiv.onclick = () => {
-                    alert(`Выбран день: ${i} ${monthNames[currentMonth]}`);
-                };
+                if (isToday) dayDiv.classList.add('today');
                 grid.appendChild(dayDiv);
             }
             monthBlock.appendChild(grid);
             container.appendChild(monthBlock);
+        }
+
+        function selectCalendarDay(dateStr) {
+            const dayTasks = tasks.filter(task => task.date === dateStr);
+            const label = new Date(`${dateStr}T12:00:00`).toLocaleDateString('ru-RU', {
+                weekday: 'long', day: 'numeric', month: 'long'
+            });
+            const details = dayTasks.length
+                ? dayTasks.map(task => `${task.done ? '✓' : '○'} ${task.text}`).join('\\n')
+                : 'На этот день задач нет.';
+            alert(`${label}\\n\\n${details}`);
+            if (tg && tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
         }
 
         // --- ЗАЛ СЛАВЫ ---
@@ -1097,5 +1136,244 @@
 
         init();
     </script>
+
+<style id="minimal-upgrade">
+:root{
+ --bg:#0b0d10;--card:#13171d;--card-2:#191f27;--card-3:#222a34;
+ --line:rgba(255,255,255,.075);--line-2:rgba(255,255,255,.13);
+ --text:#eef1f5;--hint:#929ba8;--faint:#606b79;
+ --gold:#d8b879;--gold-hi:#f0d9a8;--gold-lo:#9d7b45;
+ --green:#52c58b;--red:#e47777;
+ --gold-grad:linear-gradient(135deg,#e8d2a5,#b99255);
+ --radius:18px;
+}
+body{background:var(--bg);letter-spacing:.01em}
+.header{padding:22px 18px 16px}
+.header h1{font-weight:650;letter-spacing:-.045em}
+.tabs{gap:7px;padding:7px 14px 12px;scrollbar-width:none}
+.tabs button{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--hint);padding:10px 13px;font-size:12px;transition:.2s}
+.tabs button.active{background:#252a31;color:var(--text);border-color:rgba(216,184,121,.35);box-shadow:0 4px 18px #0003}
+.day-progress,.hall-section,.month-block,.stats-card,.achievement-card,.calendar-detail{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);box-shadow:0 8px 30px #0002}
+.day-progress{padding:17px}
+#taskList{gap:9px}
+#taskList li{border:1px solid var(--line);border-radius:15px;background:var(--card);padding:13px 12px;transition:transform .2s,border-color .2s,opacity .2s}
+#taskList li:active{transform:scale(.985)}
+.task-text{line-height:1.4}
+.fab-btn{background:var(--gold-grad);color:#17130c;box-shadow:0 8px 24px #0006}
+.add-panel{border:1px solid var(--line-2);border-radius:22px;background:#151a21}
+input{border:1px solid var(--line)!important;border-radius:12px!important;background:var(--card-2)!important}
+#calendarMonths{min-height:0!important}
+.month-block{padding:16px;margin-bottom:14px}
+.month-title{display:flex;align-items:center;justify-content:space-between!important;font-size:15px!important}
+.cal-day{border-radius:11px!important;min-height:38px;display:grid;place-items:center;transition:.18s;cursor:pointer}
+.cal-day.selected{outline:1px solid var(--gold);background:#d8b87920!important}
+.cal-day.has-tasks:after,.cal-day.all-done:after{content:"";width:4px;height:4px;border-radius:50%;background:var(--gold);position:absolute;margin-top:25px}
+.cal-day.all-done:after{background:var(--green)}
+.upgrade-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.stats-card{padding:15px;min-width:0}
+.stats-value{font-size:26px;font-weight:700;letter-spacing:-.05em}
+.stats-label{font-size:11px;color:var(--hint);margin-top:5px}
+.stat-track{height:6px;background:var(--card-3);border-radius:10px;overflow:hidden;margin-top:10px}
+.stat-track i{display:block;height:100%;background:var(--gold-grad);border-radius:10px}
+.achievement-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.achievement-card{padding:14px;min-height:122px;position:relative;overflow:hidden}
+.achievement-card.locked{opacity:.48;filter:saturate(.35)}
+.achievement-icon{font-size:24px;margin-bottom:9px}
+.achievement-name{font-size:13px;font-weight:650}
+.achievement-desc{font-size:11px;color:var(--hint);margin-top:5px;line-height:1.4}
+.achievement-state{font-size:10px;color:var(--green);margin-top:9px}
+.calendar-detail{padding:15px;margin-top:12px}
+.calendar-detail h3{font-size:14px;margin:0 0 10px}
+.calendar-task{padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.calendar-task:last-child{border:0}
+.section-kicker{font-size:11px;color:var(--hint);text-transform:uppercase;letter-spacing:.12em;margin:5px 0 10px}
+.empty-state{padding:25px 14px;text-align:center;color:var(--hint);font-size:13px}
+#statsView,#achievementsView{display:none;flex-direction:column;padding-bottom:24px}
+.tabs button,.fab-btn,.icon-btn,.tag-btn{ -webkit-tap-highlight-color:transparent}
+@keyframes riseIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(.94)}65%{transform:scale(1.035)}100%{transform:scale(1)}}
+#taskList li,.stats-card,.achievement-card{animation:riseIn .28s ease both}
+#taskList li.just-done{animation:pop .35s ease}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
+<script id="minimal-upgrade-script">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const pad=n=>String(n).padStart(2,'0');
+ const localDate=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+ const parseDate=s=>{const [y,m,d]=(s||'').split('-').map(Number);return new Date(y||2000,(m||1)-1,d||1)};
+ const todayKey=()=>localDate(new Date());
+ const dayOffset=n=>{const d=new Date();d.setDate(d.getDate()+n);return localDate(d)};
+ const safeText=(el,value)=>{el.textContent=String(value??'')};
+ let calendarMonth=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+ let selectedCalendarDate=todayKey();
+
+ function pulse(){try{if(window.Telegram?.WebApp?.HapticFeedback)window.Telegram.WebApp.HapticFeedback.selectionChanged()}catch(e){}}
+ function refreshAll(){
+  renderTasks();updateDayProgress();updateRank();updateStreak();
+  if(typeof renderHall==='function')renderHall();
+  if(currentTab==='calendar')renderCalendar();
+  if(currentTab==='stats')renderStats();
+  if(currentTab==='achievements')renderAchievements();
+ }
+ function taskDate(tab){return tab==='tomorrow'?dayOffset(1):todayKey()}
+ function setView(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.id==='tab-'+tab));
+  ['standardView','calendarView','chatView','hallView','statsView','achievementsView'].forEach(id=>{if($(id))$(id).style.display='none'});
+  const isPlan=tab==='today'||tab==='tomorrow';
+  if(isPlan){$('standardView').style.display='flex';$('fabBtn').style.display='flex';renderTasks();updateDayProgress()}
+  else{
+   $('fabBtn').style.display='none';
+   const map={calendar:'calendarView',hall:'hallView',chat:'chatView',stats:'statsView',achievements:'achievementsView'};
+   if($(map[tab]))$(map[tab]).style.display='flex';
+   if(tab==='calendar')renderCalendar();
+   if(tab==='hall')renderHall();
+   if(tab==='chat')scrollToBottom();
+   if(tab==='stats')renderStats();
+   if(tab==='achievements')renderAchievements();
+  }
+  pulse();
+ }
+ window.switchTab=setView;
+
+ // Keep original storage format and IDs, but use local calendar dates.
+ window.addTask=function(source){
+  const input=$(source==='panel'?'panelTaskInput':'taskInput');if(!input)return;
+  const text=input.value.trim();if(!text)return;
+  const date=taskDate(currentTab);
+  tasks.push({id:Date.now()+Math.floor(Math.random()*1000),text,date,done:false,tag:typeof selectedTag!=='undefined'?selectedTag:null});
+  saveData();input.value='';if(source==='panel')closeAddPanel();
+  refreshAll();pulse();
+ };
+ window.toggleTask=function(id){
+  const task=tasks.find(t=>String(t.id)===String(id));if(!task)return;
+  task.done=!task.done;saveData();refreshAll();pulse();
+ };
+ window.deleteTask=function(id){
+  tasks=tasks.filter(t=>String(t.id)!==String(id));saveData();refreshAll();
+ };
+ window.renderTasks=function(){
+  const list=$('taskList');if(!list)return;list.replaceChildren();
+  const date=taskDate(currentTab),filtered=tasks.filter(t=>t.date===date);
+  if(!filtered.length){const empty=document.createElement('div');empty.className='empty-state';empty.textContent='Пока пусто. Добавь одну важную задачу — и начни.';list.appendChild(empty);return}
+  filtered.forEach((task,index)=>{
+   const li=document.createElement('li');li.id='task-'+task.id;if(task.done)li.classList.add('done');
+   const check=document.createElement('button');check.className='icon-btn '+(task.done?'check':'');check.type='button';check.setAttribute('aria-label',task.done?'Отметить невыполненной':'Выполнить');check.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';check.addEventListener('click',()=>toggleTask(task.id));
+   const text=document.createElement('span');text.className='task-text';text.textContent=task.text;
+   const meta=document.createElement('small');meta.className='task-meta';meta.textContent=task.tag||'';
+   const del=document.createElement('button');del.className='icon-btn';del.type='button';del.setAttribute('aria-label','Удалить задачу');del.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>';del.addEventListener('click',()=>deleteTask(task.id));
+   li.append(check,text);if(task.tag)li.append(meta);li.append(del);li.style.animationDelay=(index*35)+'ms';list.append(li);
+  });
+ };
+ window.updateDayProgress=function(){
+  const box=$('dayProgress');if(!box)return;
+  const list=tasks.filter(t=>t.date===taskDate(currentTab)),done=list.filter(t=>t.done).length,pct=list.length?Math.round(done/list.length*100):0;
+  safeText($('dpLabel'),currentTab==='tomorrow'?'План на завтра':'План на сегодня');safeText($('dpDone'),done);safeText($('dpTotal'),list.length);safeText($('dpPct'),pct+'%');$('dpFill').style.width=pct+'%';box.classList.toggle('complete',!!list.length&&done===list.length);
+  safeText($('dpNote'),!list.length?'Добавь несколько важных задач.':done===list.length?'Отлично. План закрыт.':`Осталось ${list.length-done}. Двигайся дальше.`);
+ };
+ function completedDays(){
+  return [...new Set(tasks.filter(t=>t.done).map(t=>t.date))].sort();
+ }
+ function currentStreak(){
+  const days=new Set(completedDays());let d=parseDate(todayKey()),count=0;
+  if(!days.has(localDate(d))){d.setDate(d.getDate()-1);if(!days.has(localDate(d)))return 0}
+  while(days.has(localDate(d))){count++;d.setDate(d.getDate()-1)}
+  return count;
+ }
+ window.updateStreak=function(){if($('streak-display'))$('streak-display').textContent='🔥 '+currentStreak()};
+ function statsData(){
+  const done=tasks.filter(t=>t.done),total=tasks.length,days=completedDays();
+  const start=new Date();start.setDate(start.getDate()-6);start.setHours(0,0,0,0);
+  const week=tasks.filter(t=>parseDate(t.date)>=start);
+  const weekDone=week.filter(t=>t.done).length;
+  const today=tasks.filter(t=>t.date===todayKey());
+  return {done:done.length,total,rate:total?Math.round(done.length/total*100):0,days:days.length,streak:currentStreak(),week:week.length,weekDone,today:today.length,todayDone:today.filter(t=>t.done).length};
+ }
+ window.renderStats=function(){
+  const root=$('statsView');if(!root)return;const s=statsData();
+  const cards=[[''+s.done,'Выполнено задач'],[s.rate+'%','Общий процент'],[s.streak,'Дней подряд'],[s.days,'Активных дней'],[s.weekDone+'/'+s.week,'За последние 7 дней'],[s.todayDone+'/'+s.today,'Сегодня']];
+  root.replaceChildren();const title=document.createElement('div');title.className='section-kicker';title.textContent='Твой прогресс';root.append(title);
+  const grid=document.createElement('div');grid.className='upgrade-grid';
+  cards.forEach(([v,l])=>{const c=document.createElement('div');c.className='stats-card';const val=document.createElement('div');val.className='stats-value';val.textContent=v;const label=document.createElement('div');label.className='stats-label';label.textContent=l;c.append(val,label);grid.append(c)});
+  root.append(grid);
+  const weekTitle=document.createElement('div');weekTitle.className='section-kicker';weekTitle.textContent='Последние 7 дней';root.append(weekTitle);
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const key=localDate(d),day=tasks.filter(t=>t.date===key),n=day.filter(t=>t.done).length;
+   const row=document.createElement('div');row.className='stats-card';row.style.marginBottom='8px';row.style.padding='12px 14px';
+   const top=document.createElement('div');top.style.cssText='display:flex;justify-content:space-between;font-size:12px';const name=document.createElement('span');name.textContent=d.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'});const count=document.createElement('span');count.style.color='var(--hint)';count.textContent=n+'/'+day.length;top.append(name,count);
+   const track=document.createElement('div');track.className='stat-track';const fill=document.createElement('i');fill.style.width=(day.length?n/day.length*100:0)+'%';track.append(fill);row.append(top,track);root.append(row);
+  }
+ };
+ const achievementDefs=[
+  ['🌱','Первый шаг','Выполни первую задачу',s=>s.done>=1],
+  ['⚡','Разгон','Выполни 10 задач',s=>s.done>=10],
+  ['🏅','Дисциплина','Выполни 50 задач',s=>s.done>=50],
+  ['🔥','Три дня','Держи серию 3 дня',s=>s.streak>=3],
+  ['💎','Неделя силы','Держи серию 7 дней',s=>s.streak>=7],
+  ['🎯','Без промахов','Закрой все задачи за день',()=>{const d=tasks.filter(t=>t.date===todayKey());return d.length>0&&d.every(t=>t.done)}],
+  ['📅','Постоянство','Будь активен 10 разных дней',s=>s.days>=10],
+  ['🚀','Сотня','Выполни 100 задач',s=>s.done>=100]
+ ];
+ window.renderAchievements=function(){
+  const root=$('achievementsView');if(!root)return;const s=statsData();root.replaceChildren();
+  const earned=achievementDefs.filter(a=>a[3](s)).length;
+  const heading=document.createElement('div');heading.className='section-kicker';heading.textContent=`Достижения · ${earned}/${achievementDefs.length}`;root.append(heading);
+  const grid=document.createElement('div');grid.className='achievement-list';
+  achievementDefs.forEach(([icon,name,desc,check])=>{const ok=check(s),card=document.createElement('div');card.className='achievement-card'+(ok?'':' locked');
+   const i=document.createElement('div');i.className='achievement-icon';i.textContent=icon;const n=document.createElement('div');n.className='achievement-name';n.textContent=name;const d=document.createElement('div');d.className='achievement-desc';d.textContent=desc;const state=document.createElement('div');state.className='achievement-state';state.textContent=ok?'✓ Получено':'🔒 Не открыто';card.append(i,n,d,state);grid.append(card)});
+  root.append(grid);
+ };
+ window.renderCalendar=function(){
+  const root=$('calendarMonths');if(!root)return;root.replaceChildren();
+  const monthNames=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const block=document.createElement('div');block.className='month-block';
+  const head=document.createElement('div');head.className='month-title';
+  const prev=document.createElement('button');prev.className='icon-btn';prev.textContent='‹';prev.setAttribute('aria-label','Предыдущий месяц');prev.onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar()};
+  const label=document.createElement('strong');label.textContent=monthNames[calendarMonth.getMonth()]+' '+calendarMonth.getFullYear();
+  const next=document.createElement('button');next.className='icon-btn';next.textContent='›';next.setAttribute('aria-label','Следующий месяц');next.onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar()};
+  head.append(prev,label,next);block.append(head);
+  const grid=document.createElement('div');grid.className='calendar-grid';grid.style.cssText='display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center;margin-top:16px';
+  ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(x=>{const e=document.createElement('div');e.textContent=x;e.style.cssText='font-size:11px;color:var(--hint);padding-bottom:5px';grid.append(e)});
+  const year=calendarMonth.getFullYear(),month=calendarMonth.getMonth(),offset=(new Date(year,month,1).getDay()+6)%7,days=new Date(year,month+1,0).getDate();
+  for(let i=0;i<offset;i++)grid.append(document.createElement('div'));
+  for(let n=1;n<=days;n++){const key=`${year}-${pad(month+1)}-${pad(n)}`,dayTasks=tasks.filter(t=>t.date===key),el=document.createElement('button');el.type='button';el.className='cal-day';el.textContent=n;el.style.position='relative';
+   if(key===todayKey())el.classList.add('today');if(dayTasks.length)el.classList.add(dayTasks.every(t=>t.done)?'all-done':'has-tasks');if(key===selectedCalendarDate)el.classList.add('selected');
+   el.onclick=()=>{selectedCalendarDate=key;renderCalendar()};grid.append(el);
+  }
+  block.append(grid);root.append(block);
+  const detail=document.createElement('div');detail.className='calendar-detail';const h=document.createElement('h3');h.textContent=parseDate(selectedCalendarDate).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});detail.append(h);
+  const selected=tasks.filter(t=>t.date===selectedCalendarDate);
+  if(!selected.length){const empty=document.createElement('div');empty.className='empty-state';empty.textContent='На этот день задач нет.';detail.append(empty)}
+  selected.forEach(t=>{const row=document.createElement('div');row.className='calendar-task';row.textContent=(t.done?'✓ ':'○ ')+t.text;row.style.color=t.done?'var(--green)':'var(--text)';detail.append(row)});
+  root.append(detail);
+ };
+
+ // Additional views are appended without touching the existing storage schema.
+ const tabs=$('tabsContainer');
+ [['stats','Статистика'],['achievements','Достижения']].forEach(([id,label])=>{if(!$('tab-'+id)){const b=document.createElement('button');b.id='tab-'+id;b.textContent=label;b.onclick=()=>switchTab(id);tabs.append(b)}});
+ [['statsView'],['achievementsView']].forEach(([id])=>{if(!$(id)){const v=document.createElement('div');v.id=id;$('content').append(v)}});
+ // Improve old local-date behavior and refresh every dependent view after edits.
+ window.renderHall=function(){
+  const doneRoot=$('hallDoneList'),failRoot=$('hallFailList');if(!doneRoot||!failRoot)return;
+  doneRoot.replaceChildren();failRoot.replaceChildren();
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);const cutoffKey=localDate(cutoff);
+  const done=tasks.filter(t=>t.done&&t.date>=cutoffKey).sort((a,b)=>b.date.localeCompare(a.date));
+  const failed=tasks.filter(t=>!t.done&&t.date<todayKey()).sort((a,b)=>b.date.localeCompare(a.date));
+  const fill=(root,list,empty)=>{if(!list.length){const e=document.createElement('li');e.className='empty-state';e.textContent=empty;root.append(e);return}
+   list.forEach(t=>{const li=document.createElement('li');li.style.cssText='background:var(--card);padding:11px 13px;border-radius:12px;margin-bottom:7px;border:1px solid var(--line);list-style:none';const title=document.createElement('div');title.textContent=t.text;const meta=document.createElement('small');meta.style.color='var(--hint)';meta.textContent=t.date+(t.tag?' · '+t.tag:'');li.append(title,meta);root.append(li)});
+  };
+  fill(doneRoot,done,'Пока нет выполненных задач за последние 30 дней.');fill(failRoot,failed,'Нет просроченных задач. Так держать.');
+ };
+ // Replace date generation in existing stored tasks only when rendering; don't rewrite historical records.
+ const originalCloseSplash=window.closeSplash;
+ window.closeSplash=function(){if(originalCloseSplash)originalCloseSplash();};
+ // Initial refresh after the original app has completed init().
+ updateStreak();updateDayProgress();
+ const originalInitTab=window.switchTab;
+ if(currentTab==='calendar')renderCalendar();
+})();
+</script>
+
 </body>
 </html>
