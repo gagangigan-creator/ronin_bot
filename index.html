@@ -535,7 +535,7 @@
     <!-- ЭКРАН ПРИВЕТСТВИЯ -->
     <div id="splash">
         <h2>МОЙ ПУТЬ</h2>
-        <p class="main-desc">Это твой штаб.<br>Здесь не ноют.<br>Слабые сдаются — мы идем до конца.</p>
+        <p class="main-desc">Тихий фокус. Небольшие шаги. Твой темп.</p>
         <p class="phrase" id="splashPhrase"></p>
         <button onclick="closeSplash()">ПРИСТУПИТЬ</button>
     </div>
@@ -543,14 +543,18 @@
     <!-- ШАПКА -->
     <div class="header">
         <div class="title-block">
-            <h1>Мой путь</h1>
             <div class="rank" id="rankLabel">
-                <span class="rank-name" id="rankName">Рядовой</span>
+                <span class="rank-name" id="rankName">Начало</span>
                 <span class="rank-bar"><i id="rankFill"></i></span>
                 <span class="rank-num" id="rankNum">0/5</span>
             </div>
         </div>
-        <div id="streak-display">🔥 0</div>
+        <div class="header-actions">
+            <div id="streak-display" aria-label="Текущая серия">🔥 0</div>
+            <button class="profile-trigger" id="profileButton" type="button" onclick="openProfile()" aria-label="Открыть личный профиль">
+                <span id="profileAvatarMini">П</span>
+            </button>
+        </div>
     </div>
 
     <!-- ВКЛАДКИ -->
@@ -632,11 +636,55 @@
         </div>
     </div>
 
+    <!-- ЛИЧНЫЙ ПРОФИЛЬ -->
+    <div class="profile-overlay" id="profileOverlay" aria-hidden="true" onclick="closeProfile(event)">
+        <section class="profile-sheet" role="dialog" aria-modal="true" aria-labelledby="profileTitle" onclick="event.stopPropagation()">
+            <div class="profile-grabber" aria-hidden="true"></div>
+            <div class="profile-topline">
+                <span class="profile-eyebrow">ТВОЁ ПРОСТРАНСТВО</span>
+                <button class="panel-close" id="profileClose" type="button" onclick="closeProfile()" aria-label="Закрыть профиль">✕</button>
+            </div>
+            <div class="profile-identity">
+                <div class="profile-avatar" id="profileAvatar">П</div>
+                <div class="profile-identity-copy">
+                    <h2 id="profileTitle">Мой профиль</h2>
+                    <p id="profileSubtitle">Личный прогресс · только для тебя</p>
+                </div>
+            </div>
+            <div class="profile-level-card">
+                <div><span class="profile-eyebrow">ТЕКУЩИЙ УРОВЕНЬ</span><strong id="profileLevel">Начало</strong></div>
+                <div class="profile-level-mark" id="profileLevelMark">01</div>
+                <div class="profile-level-track"><i id="profileLevelFill"></i></div>
+                <small id="profileLevelHint">0 из 5 задач до следующего уровня</small>
+            </div>
+            <div class="profile-stat-grid">
+                <div class="profile-stat"><strong id="profileDone">0</strong><span>выполнено</span></div>
+                <div class="profile-stat"><strong id="profileStreak">0</strong><span>дней подряд</span></div>
+                <div class="profile-stat"><strong id="profileAwards">0</strong><span>достижений</span></div>
+            </div>
+            <div class="profile-section-label">БЫСТРЫЙ ДОСТУП</div>
+            <div class="profile-links">
+                <button type="button" onclick="closeProfile();switchTab('stats')"><span class="profile-link-icon">◷</span><span><b>Моя статистика</b><small>Неделя и общий прогресс</small></span><i>›</i></button>
+                <button type="button" onclick="closeProfile();switchTab('achievements')"><span class="profile-link-icon">✧</span><span><b>Достижения</b><small>Твои результаты и серии</small></span><i>›</i></button>
+                <button type="button" onclick="closeProfile();switchTab('calendar')"><span class="profile-link-icon">▦</span><span><b>История в календаре</b><small>Планы и выполненные задачи</small></span><i>›</i></button>
+            </div>
+            <div class="profile-ranking-card">
+                <div class="ranking-lock">♧</div>
+                <div><b>Общий рейтинг</b><p>Подключим после настройки серверного доступа к NEON. Участие будет добровольным.</p></div>
+                <span class="coming-soon">ПОЗЖЕ</span>
+            </div>
+            <p class="profile-footnote" id="profilePrivacy">Твои задачи и личный прогресс остаются на этом устройстве.</p>
+        </section>
+    </div>
+
     <script>
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.expand(); tg.setHeaderColor("secondary_bg_color"); tg.setBackgroundColor("bg_color"); }
 
-        let tasks = JSON.parse(localStorage.getItem('my_path_tasks')) || [];
+        let tasks;
+        try { tasks = JSON.parse(localStorage.getItem('my_path_tasks') || '[]'); } catch (e) { tasks = []; }
+        if (!Array.isArray(tasks)) tasks = [];
+        const localDateKey = (date) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
         let currentTab = 'today';
         let selectedTag = null;
 
@@ -704,7 +752,7 @@
             tasks.push({ 
                 id: Date.now(), 
                 text: text, 
-                date: dateToSave.toISOString().split('T')[0], 
+                date: localDateKey(dateToSave), 
                 done: false, 
                 tag: selectedTag 
             });
@@ -743,14 +791,15 @@
             if (!list) return;
             list.innerHTML = '';
             
-            const today = new Date().toISOString().split('T')[0];
-            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+            const today = localDateKey(new Date());
+            const tomorrowDate = new Date(); tomorrowDate.setDate(tomorrowDate.getDate()+1);
+            const tomorrow = localDateKey(tomorrowDate);
             const targetDate = currentTab === 'tomorrow' ? tomorrow : today;
 
             const filtered = tasks.filter(t => t.date === targetDate);
 
             if (filtered.length === 0) {
-                list.innerHTML = '<div style="text-align:center; color:var(--hint); margin-top:20px; font-size:14px;">Здесь пусто. Добавь задачу.</div>';
+                const empty = document.createElement('li'); empty.className = 'empty-state'; empty.textContent = 'Здесь пусто. Добавь задачу.'; list.appendChild(empty);
                 return;
             }
 
@@ -758,15 +807,8 @@
                 const li = document.createElement('li');
                 if (task.done) li.classList.add('done');
                 
-                li.innerHTML = `
-                    <button class="icon-btn ${task.done ? 'check' : ''}" onclick="toggleTask(${task.id})">
-                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                    </button>
-                    <span class="task-text">${task.text}</span>
-                    <button class="icon-btn" onclick="deleteTask(${task.id})">
-                        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                    </button>
-                `;
+                const title = document.createElement('span'); title.className = 'task-text'; title.textContent = task.text;
+                li.appendChild(title);
                 list.appendChild(li);
             });
         }
@@ -774,7 +816,7 @@
         function saveData() { localStorage.setItem('my_path_tasks', JSON.stringify(tasks)); }
 
         function updateStreak() {
-            document.getElementById('streak-display').innerText = `🔥 ${tasks.filter(t => t.done).length}`;
+            document.getElementById('streak-display').textContent = '🔥 0';
         }
 
         function selectTag(tag, btn) {
@@ -832,6 +874,7 @@
             let history = JSON.parse(localStorage.getItem('my_ai_history')) || [];
             history.push({ role: "user", text: text });
             if (history.length > 20) history.shift();
+            try { localStorage.setItem('my_ai_history', JSON.stringify(history)); } catch (e) {}
 
             let fullPrompt = "Ты — суровый, но справедливый психолог. Пиши коротко, 2-3 предложения. Без списков.\n\n";
             history.forEach(msg => { fullPrompt += (msg.role === "user" ? "Пользователь: " : "ИИ: ") + msg.text + "\n"; });
@@ -842,7 +885,7 @@
                 const aiAnswer = await response.text();
 
                 if (response.status === 404 || aiAnswer.includes('404') || aiAnswer.includes('Not Found')) {
-                    aiBubble.innerText = "Лимит на сегодня исчерпан, брат. Отдыхай, копи силы до завтра 💪";
+                    aiBubble.innerText = "Не удалось получить ответ. Проверь соединение и попробуй ещё раз.";
                 } else {
                     aiBubble.innerText = aiAnswer;
                     history.push({ role: "assistant", text: aiAnswer });
@@ -850,7 +893,7 @@
                     localStorage.setItem('my_ai_history', JSON.stringify(history));
                 }
             } catch (error) {
-                aiBubble.innerText = "Лимит на сегодня исчерпан, брат. Отдыхай, копи силы до завтра 💪";
+                aiBubble.innerText = "Не удалось получить ответ. Проверь соединение и попробуй ещё раз.";
             }
             scrollToBottom();
         }
@@ -955,17 +998,17 @@
 
             const monthAgo = new Date();
             monthAgo.setDate(monthAgo.getDate() - 30);
-            const monthAgoStr = monthAgo.toISOString().split('T')[0];
+            const monthAgoStr = localDateKey(monthAgo);
 
             const doneTasks = tasks.filter(t => t.done && t.date >= monthAgoStr);
-            const failTasks = tasks.filter(t => !t.done && t.date < new Date().toISOString().split('T')[0]);
+            const failTasks = tasks.filter(t => !t.done && t.date < localDateKey(new Date()));
 
             if (doneTasks.length === 0) doneList.innerHTML = '<div style="color:var(--hint); font-size:14px;">Пока нет выполненных задач.</div>';
             else {
                 doneTasks.forEach(task => {
                     const li = document.createElement('li');
                     li.style.cssText = "background: var(--card); padding: 10px; border-radius: 8px; margin-bottom: 5px; opacity: 0.7;";
-                    li.innerHTML = `<span style="text-decoration: line-through; color: var(--hint);">${task.text}</span>`;
+                    const title = document.createElement('span'); title.style.cssText = 'text-decoration:line-through;color:var(--hint)'; title.textContent = task.text; li.appendChild(title);
                     doneList.appendChild(li);
                 });
             }
@@ -975,7 +1018,7 @@
                 failTasks.forEach(task => {
                     const li = document.createElement('li');
                     li.style.cssText = "background: var(--card); padding: 10px; border-radius: 8px; margin-bottom: 5px; border-left: 3px solid var(--red);";
-                    li.innerHTML = `<span style="color: var(--text);">${task.text}</span>`;
+                    const title = document.createElement('span'); title.style.color = 'var(--text)'; title.textContent = task.text; li.appendChild(title);
                     failList.appendChild(li);
                 });
             }
@@ -1006,17 +1049,12 @@
 
             // Звания по количеству выполненных задач
             const RANKS = [
-                { name: 'Рядовой', min: 0 },
-                { name: 'Ефрейтор', min: 5 },
-                { name: 'Мл. сержант', min: 15 },
-                { name: 'Сержант', min: 30 },
-                { name: 'Ст. сержант', min: 50 },
-                { name: 'Старшина', min: 80 },
-                { name: 'Лейтенант', min: 120 },
-                { name: 'Капитан', min: 170 },
-                { name: 'Майор', min: 240 },
-                { name: 'Полковник', min: 330 },
-                { name: 'Генерал', min: 450 }
+                { name: 'Начало', min: 0 }, { name: 'Ритм', min: 5 },
+                { name: 'Фокус', min: 15 }, { name: 'Устойчивость', min: 30 },
+                { name: 'Рост', min: 50 }, { name: 'Баланс', min: 80 },
+                { name: 'Мастерство', min: 120 }, { name: 'Постоянство', min: 170 },
+                { name: 'Сила привычки', min: 240 }, { name: 'Путь', min: 330 },
+                { name: 'Новый уровень', min: 450 }
             ];
 
             function updateRank() {
@@ -1045,8 +1083,9 @@
 
             // Задачи текущей вкладки (та же логика дат, что и в renderTasks)
             function tasksForCurrentTab() {
-                const today = new Date().toISOString().split('T')[0];
-                const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+                const today = localDateKey(new Date());
+                const tomorrowDate = new Date(); tomorrowDate.setDate(tomorrowDate.getDate()+1);
+                const tomorrow = localDateKey(tomorrowDate);
                 const target = currentTab === 'tomorrow' ? tomorrow : today;
                 return tasks.filter(t => t.date === target);
             }
@@ -1145,11 +1184,13 @@
  --gold:#d8b879;--gold-hi:#f0d9a8;--gold-lo:#9d7b45;
  --green:#52c58b;--red:#e47777;
  --gold-grad:linear-gradient(135deg,#e8d2a5,#b99255);
- --radius:18px;
+ --radius:16px;
 }
 body{background:var(--bg);letter-spacing:.01em}
-.header{padding:22px 18px 16px}
-.header h1{font-weight:650;letter-spacing:-.045em}
+.header{padding:10px 16px 8px;min-height:52px}
+.header h1{font-size:16px;font-weight:650;letter-spacing:-.02em}
+.rank{margin-top:3px;font-size:9px;gap:6px;letter-spacing:.08em}
+#streak-display{padding:6px 10px;border:0;background:transparent;box-shadow:none}
 .tabs{gap:7px;padding:7px 14px 12px;scrollbar-width:none}
 .tabs button{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--hint);padding:10px 13px;font-size:12px;transition:.2s}
 .tabs button.active{background:#252a31;color:var(--text);border-color:rgba(216,184,121,.35);box-shadow:0 4px 18px #0003}
@@ -1160,12 +1201,14 @@ body{background:var(--bg);letter-spacing:.01em}
 #taskList li:active{transform:scale(.985)}
 .task-text{line-height:1.4}
 .fab-btn{background:var(--gold-grad);color:#17130c;box-shadow:0 8px 24px #0006}
+.fab-btn{padding:0!important;display:flex;align-items:center;justify-content:center}
 .add-panel{border:1px solid var(--line-2);border-radius:22px;background:#151a21}
 input{border:1px solid var(--line)!important;border-radius:12px!important;background:var(--card-2)!important}
 #calendarMonths{min-height:0!important}
 .month-block{padding:16px;margin-bottom:14px}
 .month-title{display:flex;align-items:center;justify-content:space-between!important;font-size:15px!important}
 .cal-day{border-radius:11px!important;min-height:38px;display:grid;place-items:center;transition:.18s;cursor:pointer}
+.cal-day.past,.cal-day:disabled{opacity:.22!important;color:var(--hint)!important;pointer-events:none;filter:grayscale(1);cursor:default}
 .cal-day.selected{outline:1px solid var(--gold);background:#d8b87920!important}
 .cal-day.has-tasks:after,.cal-day.all-done:after{content:"";width:4px;height:4px;border-radius:50%;background:var(--gold);position:absolute;margin-top:25px}
 .cal-day.all-done:after{background:var(--green)}
@@ -1195,6 +1238,48 @@ input{border:1px solid var(--line)!important;border-radius:12px!important;backgr
 #taskList li,.stats-card,.achievement-card{animation:riseIn .28s ease both}
 #taskList li.just-done{animation:pop .35s ease}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+.header{padding:10px 16px 8px;min-height:54px}
+.header-actions{display:flex;align-items:center;gap:8px}
+.profile-trigger{width:38px;height:38px;border-radius:50%;border:1px solid rgba(216,184,121,.45);background:linear-gradient(145deg,#34302a,#1a1c20);color:var(--gold-hi);display:grid;place-items:center;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 16px #0004}
+.profile-trigger:active{transform:scale(.94)}
+.profile-overlay{position:fixed;inset:0;z-index:300;background:rgba(4,5,7,.72);backdrop-filter:blur(9px);display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity .24s ease,visibility .24s ease}
+.profile-overlay.open{opacity:1;visibility:visible}
+.profile-sheet{width:min(100%,520px);max-height:min(91dvh,860px);overflow:auto;padding:10px 20px calc(22px + var(--safe-bottom));border:1px solid var(--line-2);border-bottom:0;border-radius:26px 26px 0 0;background:linear-gradient(160deg,#1a1d22,#111419 65%);box-shadow:0 -18px 70px #0008;transform:translateY(28px);transition:transform .3s cubic-bezier(.22,.8,.3,1);scrollbar-width:thin}
+.profile-overlay.open .profile-sheet{transform:translateY(0)}
+.profile-grabber{height:4px;width:36px;margin:0 auto 15px;border-radius:8px;background:#ffffff26}
+.profile-topline{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.profile-eyebrow,.profile-section-label{font-size:9px;letter-spacing:.16em;color:#b5a27e;font-weight:700}
+.profile-identity{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.profile-avatar{width:56px;height:56px;flex:none;border-radius:20px;display:grid;place-items:center;background:linear-gradient(145deg,#e6d1a7,#a98750);color:#211b10;font-size:21px;font-weight:750;box-shadow:0 8px 26px #d9ad5b20}
+.profile-identity-copy h2{font-size:20px;letter-spacing:-.04em;font-weight:650}
+.profile-identity-copy p{font-size:11px;color:var(--hint);margin-top:4px}
+.profile-level-card{position:relative;padding:15px 16px 13px;border:1px solid rgba(216,184,121,.18);border-radius:17px;background:radial-gradient(90% 120% at 100% 0%,#d8b87914,transparent 65%),#ffffff04;display:grid;grid-template-columns:1fr auto;gap:4px 12px;margin-bottom:11px}
+.profile-level-card strong{display:block;margin-top:5px;font-size:16px;font-weight:650}
+.profile-level-mark{font-size:23px;font-weight:700;color:#d8b87955;align-self:center;letter-spacing:-.06em}
+.profile-level-track{height:4px;border-radius:8px;background:#ffffff10;grid-column:1/-1;overflow:hidden;margin-top:9px}
+.profile-level-track i{height:100%;display:block;width:0;background:var(--gold-grad);border-radius:inherit;transition:width .4s ease}
+.profile-level-card small{grid-column:1/-1;font-size:10px;color:var(--hint);margin-top:3px}
+.profile-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 19px}
+.profile-stat{padding:12px 8px;border:1px solid var(--line);border-radius:14px;background:#ffffff03;text-align:center}
+.profile-stat strong{display:block;font-size:20px;font-weight:650;font-variant-numeric:tabular-nums}
+.profile-stat span{display:block;margin-top:3px;color:var(--hint);font-size:10px}
+.profile-section-label{margin:0 0 8px 2px}
+.profile-links{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#ffffff02;margin-bottom:13px}
+.profile-links button{border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);width:100%;min-height:59px;display:flex;align-items:center;gap:12px;padding:9px 12px;text-align:left;cursor:pointer}
+.profile-links button:last-child{border-bottom:0}
+.profile-links button:active{background:#ffffff08}
+.profile-link-icon{width:32px;height:32px;border-radius:11px;background:#d8b87912;color:var(--gold-hi);display:grid;place-items:center;font-size:18px}
+.profile-links button span:nth-child(2){flex:1;display:flex;flex-direction:column;gap:3px}
+.profile-links b,.profile-ranking-card b{font-size:12px;font-weight:600}
+.profile-links small{font-size:10px;color:var(--hint)}
+.profile-links button>i{font-style:normal;font-size:22px;color:#777f89}
+.profile-ranking-card{display:flex;align-items:center;gap:10px;padding:12px;border-radius:15px;background:linear-gradient(120deg,#d8b8790b,transparent);border:1px solid rgba(216,184,121,.15)}
+.ranking-lock{width:32px;height:32px;display:grid;place-items:center;border-radius:11px;background:#d8b87912;color:var(--gold);font-size:17px;flex:none}
+.profile-ranking-card>div:nth-child(2){flex:1;min-width:0}
+.profile-ranking-card p{font-size:10px;line-height:1.45;color:var(--hint);margin-top:4px}
+.coming-soon{font-size:8px;letter-spacing:.1em;color:#c5ad7c;border:1px solid #d8b87938;padding:5px 7px;border-radius:99px;white-space:nowrap}
+.profile-footnote{text-align:center;font-size:9px;color:#747d89;margin:12px 4px 0}
+@media(min-width:620px){.profile-overlay{align-items:center;padding:20px}.profile-sheet{border-bottom:1px solid var(--line-2);border-radius:26px;padding-bottom:22px;max-height:88dvh}}
 </style>
 <script id="minimal-upgrade-script">
 (function(){
@@ -1243,7 +1328,8 @@ input{border:1px solid var(--line)!important;border-radius:12px!important;backgr
   const input=$(source==='panel'?'panelTaskInput':'taskInput');if(!input)return;
   const text=input.value.trim();if(!text)return;
   const date=taskDate(currentTab);
-  tasks.push({id:Date.now()+Math.floor(Math.random()*1000),text,date,done:false,tag:typeof selectedTag!=='undefined'?selectedTag:null});
+  const id=window.crypto?.randomUUID?window.crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  tasks.push({id,text,date,done:false,tag:typeof selectedTag!=='undefined'?selectedTag:null});
   saveData();input.value='';if(source==='panel')closeAddPanel();
   refreshAll();pulse();
  };
@@ -1274,7 +1360,7 @@ input{border:1px solid var(--line)!important;border-radius:12px!important;backgr
   safeText($('dpNote'),!list.length?'Добавь несколько важных задач.':done===list.length?'Отлично. План закрыт.':`Осталось ${list.length-done}. Двигайся дальше.`);
  };
  function completedDays(){
-  return [...new Set(tasks.filter(t=>t.done).map(t=>t.date))].sort();
+  return [...new Set(tasks.filter(t=>t.done&&t.date<=todayKey()).map(t=>t.date))].sort();
  }
  function currentStreak(){
   const days=new Set(completedDays());let d=parseDate(todayKey()),count=0;
@@ -1286,7 +1372,8 @@ input{border:1px solid var(--line)!important;border-radius:12px!important;backgr
  function statsData(){
   const done=tasks.filter(t=>t.done),total=tasks.length,days=completedDays();
   const start=new Date();start.setDate(start.getDate()-6);start.setHours(0,0,0,0);
-  const week=tasks.filter(t=>parseDate(t.date)>=start);
+  const end=parseDate(todayKey());end.setDate(end.getDate()+1);
+  const week=tasks.filter(t=>parseDate(t.date)>=start&&parseDate(t.date)<end);
   const weekDone=week.filter(t=>t.done).length;
   const today=tasks.filter(t=>t.date===todayKey());
   return {done:done.length,total,rate:total?Math.round(done.length/total*100):0,days:days.length,streak:currentStreak(),week:week.length,weekDone,today:today.length,todayDone:today.filter(t=>t.done).length};
@@ -1315,6 +1402,28 @@ input{border:1px solid var(--line)!important;border-radius:12px!important;backgr
   ['📅','Постоянство','Будь активен 10 разных дней',s=>s.days>=10],
   ['🚀','Сотня','Выполни 100 задач',s=>s.done>=100]
  ];
+ function profileIdentity(){
+  const user=window.Telegram?.WebApp?.initDataUnsafe?.user||{};
+  const telegramName=[user.first_name,user.last_name].filter(Boolean).join(' ').trim();
+  const name=telegramName||'Личный профиль';
+  const initials=(telegramName?telegramName.split(/\s+/).slice(0,2).map(part=>Array.from(part)[0]).join(''):'М').toLocaleUpperCase('ru-RU');
+  return {name,initials,handle:user.username?'@'+user.username:(telegramName?'Telegram Mini App':'Прогресс на этом устройстве')};
+ }
+ function updateProfile(){
+  const identity=profileIdentity(),s=statsData(),earned=achievementDefs.filter(def=>def[3](s)).length;
+  safeText($('profileTitle'),identity.name);safeText($('profileSubtitle'),identity.handle);
+  safeText($('profileAvatar'),identity.initials);safeText($('profileAvatarMini'),identity.initials);
+  safeText($('profileDone'),s.done);safeText($('profileStreak'),s.streak);safeText($('profileAwards'),earned);
+  const level=tasks.filter(t=>t.done).length,thresholds=[0,5,15,30,50,80,120,170,240,330,450];
+  let index=0;thresholds.forEach((min,i)=>{if(level>=min)index=i});
+  const next=thresholds[index+1],current=thresholds[index],progress=next?Math.max(0,Math.min(100,Math.round((level-current)/(next-current)*100))):100;
+  safeText($('profileLevel'),$('rankName')?.textContent||'Начало');safeText($('profileLevelMark'),String(index+1).padStart(2,'0'));
+  safeText($('profileLevelHint'),next?`${level-current} из ${next-current} задач до следующего уровня`:'Максимальный уровень достигнут');
+  if($('profileLevelFill'))$('profileLevelFill').style.width=progress+'%';
+ }
+ window.openProfile=function(){updateProfile();const overlay=$('profileOverlay');overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>$('profileClose')?.focus(),30);};
+ window.closeProfile=function(event){if(event&&event.target!==$('profileOverlay'))return;const overlay=$('profileOverlay');if(!overlay)return;overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');document.body.style.overflow='';$('profileButton')?.focus();};
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('profileOverlay')?.classList.contains('open'))closeProfile()});
  window.renderAchievements=function(){
   const root=$('achievementsView');if(!root)return;const s=statsData();root.replaceChildren();
   const earned=achievementDefs.filter(a=>a[3](s)).length;
@@ -1338,8 +1447,10 @@ input{border:1px solid var(--line)!important;border-radius:12px!important;backgr
   const year=calendarMonth.getFullYear(),month=calendarMonth.getMonth(),offset=(new Date(year,month,1).getDay()+6)%7,days=new Date(year,month+1,0).getDate();
   for(let i=0;i<offset;i++)grid.append(document.createElement('div'));
   for(let n=1;n<=days;n++){const key=`${year}-${pad(month+1)}-${pad(n)}`,dayTasks=tasks.filter(t=>t.date===key),el=document.createElement('button');el.type='button';el.className='cal-day';el.textContent=n;el.style.position='relative';
-   if(key===todayKey())el.classList.add('today');if(dayTasks.length)el.classList.add(dayTasks.every(t=>t.done)?'all-done':'has-tasks');if(key===selectedCalendarDate)el.classList.add('selected');
-   el.onclick=()=>{selectedCalendarDate=key;renderCalendar()};grid.append(el);
+   const isPast=key<todayKey();
+   if(isPast){el.classList.add('past');el.disabled=true;el.setAttribute('aria-label',`${n} ${monthNames[month]}, прошедший день`)}
+   else {el.setAttribute('aria-label',`${n} ${monthNames[month]}${key===todayKey()?', сегодня':''}`);el.onclick=()=>{selectedCalendarDate=key;renderCalendar()}}
+   if(key===todayKey())el.classList.add('today');if(dayTasks.length)el.classList.add(dayTasks.every(t=>t.done)?'all-done':'has-tasks');if(key===selectedCalendarDate&&!isPast)el.classList.add('selected');grid.append(el);
   }
   block.append(grid);root.append(block);
   const detail=document.createElement('div');detail.className='calendar-detail';const h=document.createElement('h3');h.textContent=parseDate(selectedCalendarDate).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});detail.append(h);
@@ -1368,8 +1479,27 @@ input{border:1px solid var(--line)!important;border-radius:12px!important;backgr
  // Replace date generation in existing stored tasks only when rendering; don't rewrite historical records.
  const originalCloseSplash=window.closeSplash;
  window.closeSplash=function(){if(originalCloseSplash)originalCloseSplash();};
+ // Keep chat turns in the existing storage key, including a user turn if the provider fails.
+ window.sendMessage=async function(){
+  const input=$('chatInput'),root=$('chatMessages');if(!input||!root)return;
+  const message=input.value.trim();if(!message)return;input.value='';
+  const historyRead=()=>{try{const value=JSON.parse(localStorage.getItem('my_ai_history')||'[]');return Array.isArray(value)?value:[]}catch(e){return []}};
+  const history=historyRead();history.push({role:'user',text:message});while(history.length>20)history.shift();
+  try{localStorage.setItem('my_ai_history',JSON.stringify(history))}catch(e){}
+  const addBubble=(role,text)=>{const el=document.createElement('div');el.className='msg-bubble '+(role==='user'?'msg-user':'msg-ai');el.textContent=text;root.append(el);return el};
+  addBubble('user',message);const pending=addBubble('assistant','Думаю…');scrollToBottom();
+  const prompt='Ты — поддерживающий и прямой мотиватор. Пиши коротко, 2–3 предложения, без списков.\n\n'+history.map(m=>(m.role==='user'?'Пользователь: ':'ИИ: ')+String(m.text||'')).join('\n')+'\nОтветь коротко:';
+  try{
+   const response=await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}`);
+   if(!response.ok)throw new Error(`HTTP ${response.status}`);
+   const answer=(await response.text()).trim();if(!answer)throw new Error('Пустой ответ');
+   pending.textContent=answer;history.push({role:'assistant',text:answer});while(history.length>20)history.shift();localStorage.setItem('my_ai_history',JSON.stringify(history));
+  }catch(error){pending.textContent='Не удалось получить ответ. Проверь соединение и попробуй ещё раз.';}
+  scrollToBottom();
+ };
  // Initial refresh after the original app has completed init().
- updateStreak();updateDayProgress();
+ renderTasks();updateStreak();updateDayProgress();updateRank();
+ try{const history=JSON.parse(localStorage.getItem('my_ai_history')||'[]'),root=$('chatMessages');if(Array.isArray(history)&&root){root.replaceChildren();history.filter(m=>m&&['user','assistant'].includes(m.role)).forEach(m=>{const el=document.createElement('div');el.className='msg-bubble '+(m.role==='user'?'msg-user':'msg-ai');el.textContent=String(m.text||'');root.append(el)});if(!root.childElementCount){const el=document.createElement('div');el.className='msg-bubble msg-ai';el.textContent='Я твой мотиватор. Расскажи, что у тебя на уме.';root.append(el)}}}catch(e){}
  const originalInitTab=window.switchTab;
  if(currentTab==='calendar')renderCalendar();
 })();
